@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="list_columns">
+        <item>NAME</item>
+        <item>DESCRIPTION</item>
+        <item>CURRENCY</item>
+        <item>TOTAL</item>
+        <item>DATE_ADDED</item>
+    </string-array>
+    <string-array name="list_types">
+        <item>VARCHAR</item>
+        <item>VARCHAR</item>
+        <item>VARCHAR</item>
+        <item>VARCHAR</item>
+        <item>DECIMAL(12,2)</item>
+    </string-array>
+    <string-array name="rates_columns">
+        <item>LOCAL_CURRENCY</item>
+        <item>DEFAULT_CURRENCY</item>
+    </string-array>
+    <string-array name="rates_types">
+        <item>VARCHAR</item>
+        <item>DECIMAL(12,2)</item>
+    </string-array>
+    <string-array name="abbrev_columns">
+        <item>FULL_NAME</item>
+        <item>ABBREV</item>
+    </string-array>
+    <string-array name="abbrev_types">
+        <item>VARCHAR</item>
+        <item>VARCHAR</item>
+    </string-array>
+</resources>
