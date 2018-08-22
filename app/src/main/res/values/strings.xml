@@ -15,4 +15,14 @@
     <string name="rates_table">CURRENCY_TABLE</string>
 
     <string name="abbreviation_table">ABBREVIATION_TABLE</string>
+
+    <string name="items_table">ITEMS_TABLE</string>
+
+    <string name="placeholder_local_currency">LCL</string>
+    <string name="placeholder_local_rate">LCL_RATE</string>
+    <string name="placeholder_default_currency">DEF</string>
+    <string name="placeholder_default_total">DEF_TT</string>
+    <string name="placeholder_item_name">ITEM_NAME</string>
+    <string name="placeholder_item_description">ITEM_DESCRIPTION</string>
+    <string name="placeholder_last_modified">LAST_MODIFIED XX.XX.XX XX.XX.XX</string>
 </resources>

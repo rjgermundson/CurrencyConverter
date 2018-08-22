@@ -14,6 +14,22 @@
         <item>VARCHAR</item>
         <item>DECIMAL(12,2)</item>
     </string-array>
+    <string-array name="items_columns">
+        <item>DATE_ADDED</item>
+        <item>NAME</item>
+        <item>DESCRIPTION</item>
+        <item>LOCAL_COST</item>
+        <item>DEFAULT_COST</item>
+        <item>IMAGE</item>
+    </string-array>
+    <string-array name="items_types">
+        <item>VARCHAR</item>
+        <item>VARCHAR</item>
+        <item>VARCHAR</item>
+        <item>DECIMAL(12,2)</item>
+        <item>DECIMAL(12,2)</item>
+        <item>VARCHAR</item>
+    </string-array>
     <string-array name="rates_columns">
         <item>LOCAL_CURRENCY</item>
         <item>DEFAULT_CURRENCY</item>
@@ -25,8 +41,10 @@
     <string-array name="abbrev_columns">
         <item>FULL_NAME</item>
         <item>ABBREV</item>
+        <item>COUNTRY_CODE</item>
     </string-array>
     <string-array name="abbrev_types">
+        <item>VARCHAR</item>
         <item>VARCHAR</item>
         <item>VARCHAR</item>
     </string-array>

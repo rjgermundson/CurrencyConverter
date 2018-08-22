@@ -11,8 +11,6 @@ import com.example.riley.currencyconverter.R;
  */
 public class ItemList extends AppCompatActivity {
 
-    private String database;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

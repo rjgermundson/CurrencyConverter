@@ -20,7 +20,7 @@
             android:textSize="18sp" />
 
         <EditText
-            android:id="@+id/list_name"
+            android:id="@+id/edit_list_name"
             android:imeOptions="actionNext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
             android:textSize="18sp" />
 
         <EditText
-            android:id="@+id/description"
+            android:id="@+id/edit_description"
             android:inputType="textMultiLine"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

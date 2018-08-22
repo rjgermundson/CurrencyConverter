@@ -1,4 +1,4 @@
-package com.example.riley.currencyconverter.ListDatabase;
+package com.example.riley.currencyconverter.LocalStorage;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -81,7 +81,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             throw new IllegalArgumentException();
         }
         SQLiteDatabase database = getReadableDatabase();
-        database.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+        database.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     // Helper method to compile columns and values to be inserted
@@ -117,12 +117,13 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
     /**
      * Return a cursor that can iterate over the entire table
+     *
+     * @requires table exists
      * @param table Name of table to check for
      * @return Cursor pointing to beginning of table
      */
     public Cursor getTable(String table) {
         SQLiteDatabase database = getReadableDatabase();
-        database.execSQL("CREATE TABLE IF NOT EXISTS " + table + "(curr_date)");
         return database.rawQuery("SELECT * FROM " + table, null);
     }
 
@@ -133,13 +134,9 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      * @return True if table exists, false otherwise
      */
     public boolean tableExists(String table) {
-
-        int count = getTable(table).getCount();
-        if (count == 0) {
-            getReadableDatabase().execSQL("DROP TABLE IF EXISTS " + table);
-            return false;
-        }
-        return true;
+        SQLiteDatabase database = getReadableDatabase();
+        Cursor cursor = database.query("SQLITE_MASTER", null, "type=\'table\' AND name=\'" + table + "\'", null, null, null, null);
+        return cursor.getCount() > 0;
     }
 
 }

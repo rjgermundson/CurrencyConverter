@@ -9,7 +9,7 @@ import android.os.Looper;
 import android.widget.Toast;
 
 import com.example.riley.currencyconverter.CurrencyScraper.WebScraper;
-import com.example.riley.currencyconverter.ListDatabase.SQLiteHelper;
+import com.example.riley.currencyconverter.LocalStorage.SQLiteHelper;
 import com.example.riley.currencyconverter.R;
 
 import java.io.IOException;
@@ -38,11 +38,6 @@ public class UpdateTask extends AsyncTask<Activity, String, Boolean> {
         webScraper.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         try {
             Hashtable<String, Double> result = webScraper.get();
-            if (result == null) {
-                Looper.prepare();
-                Toast.makeText(activity.getApplicationContext(), "Internet BLABBLABHABL", Toast.LENGTH_LONG).show();
-                return false;
-            }
             // Insert rates in database
             String[] ratesColumns = activity.getResources().getStringArray(R.array.rates_columns);
             String[] ratesTypes = activity.getResources().getStringArray(R.array.rates_types);
@@ -91,25 +86,30 @@ public class UpdateTask extends AsyncTask<Activity, String, Boolean> {
         }
         Hashtable<String, String> abbreviations = new Hashtable<>();
         Scanner scanner = new Scanner(inputStream);
-        while (scanner.hasNextLine()) {
-            String fullName = scanner.nextLine();
-            String abbreviation = scanner.nextLine();
-            abbreviations.put(fullName, abbreviation);
-        }
 
-        // Insert the abbreviations into the database
+        // Get information for SQL insertions
         String[] abbrevColumns = activity.getResources().getStringArray(R.array.abbrev_columns);
         String[] abbrevTypes = activity.getResources().getStringArray(R.array.abbrev_types);
         SQLiteHelper helper = new SQLiteHelper(activity.getApplicationContext(),
                 activity.getString(R.string.abbreviation_table),
                 abbrevColumns,
                 abbrevTypes);
-        for (String fullName : abbreviations.keySet()) {
-            String abbrev = abbreviations.get(fullName);
+
+        while (scanner.hasNextLine()) {
+            // Get data from page
+            String fullName = scanner.nextLine();
+            String abbreviation = scanner.nextLine();
+            String countryCode = scanner.nextLine();
+
+            // Insert values into database
             ContentValues contentValues = new ContentValues();
             contentValues.put(abbrevColumns[0], fullName);
-            contentValues.put(abbrevColumns[1], abbrev);
+            contentValues.put(abbrevColumns[1], abbreviation);
+            contentValues.put(abbrevColumns[2], countryCode);
             helper.insertRecord(contentValues);
+
+            // Add abbreviations to local map
+            abbreviations.put(fullName, abbreviation);
         }
         scanner.close();
         return abbreviations;
