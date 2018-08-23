@@ -11,7 +11,7 @@
         <item>VARCHAR</item>
         <item>VARCHAR</item>
         <item>VARCHAR</item>
-        <item>VARCHAR</item>
+        <item>DECIMAL(12,2)</item>
         <item>DECIMAL(12,2)</item>
     </string-array>
     <string-array name="items_columns">
