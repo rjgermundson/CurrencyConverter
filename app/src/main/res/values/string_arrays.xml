@@ -3,9 +3,9 @@
     <string-array name="list_columns">
         <item>NAME</item>
         <item>DESCRIPTION</item>
-        <item>CURRENCY</item>
+        <item>LOCAL_CURRENCY</item>
         <item>TOTAL</item>
-        <item>DATE_ADDED</item>
+        <item>MODIFIED</item>
     </string-array>
     <string-array name="list_types">
         <item>VARCHAR</item>
@@ -15,19 +15,21 @@
         <item>DECIMAL(12,2)</item>
     </string-array>
     <string-array name="items_columns">
-        <item>DATE_ADDED</item>
         <item>NAME</item>
         <item>DESCRIPTION</item>
         <item>LOCAL_COST</item>
         <item>DEFAULT_COST</item>
+        <item>DATE_ADDED</item>
+        <item>COORDINATES</item>
         <item>IMAGE</item>
     </string-array>
     <string-array name="items_types">
         <item>VARCHAR</item>
         <item>VARCHAR</item>
+        <item>DECIMAL(12,2)</item>
+        <item>DECIMAL(12,2)</item>
         <item>VARCHAR</item>
-        <item>DECIMAL(12,2)</item>
-        <item>DECIMAL(12,2)</item>
+        <item>VARCHAR</item>
         <item>VARCHAR</item>
     </string-array>
     <string-array name="rates_columns">
@@ -38,14 +40,174 @@
         <item>VARCHAR</item>
         <item>DECIMAL(12,2)</item>
     </string-array>
-    <string-array name="abbrev_columns">
-        <item>FULL_NAME</item>
-        <item>ABBREV</item>
-        <item>COUNTRY_CODE</item>
+    <string-array name="currency_names_full">
+        <item>Argentine Peso</item>
+        <item>Australian Dollar</item>
+        <item>Bahraini Dinar</item>
+        <item>Botswana Pula</item>
+        <item>Brazilian Real</item>
+        <item>British Pound</item>
+        <item>Bruneian Dollar</item>
+        <item>Bulgarian Lev</item>
+        <item>Canadian Dollar</item>
+        <item>Chilean Peso</item>
+        <item>Chinese Yuan Renminbi</item>
+        <item>Colombian Peso</item>
+        <item>Croatian Kuna</item>
+        <item>Czech Koruna</item>
+        <item>Danish Krone</item>
+        <item>Emirati Dirham</item>
+        <item>Euro</item>
+        <item>Hong Kong Dollar</item>
+        <item>Hungarian Forint</item>
+        <item>Icelandic Krona</item>
+        <item>Indian Rupee</item>
+        <item>Indonesian Rupiah</item>
+        <item>Iranian Rial</item>
+        <item>Israeli Shekel</item>
+        <item>Japanese Yen</item>
+        <item>Kazakhstani Tenge</item>
+        <item>Kuwaiti Dinar</item>
+        <item>Libyan Dinar</item>
+        <item>Malaysian Ringgit</item>
+        <item>Mauritian Rupee</item>
+        <item>Mexican Peso</item>
+        <item>Nepalese Rupee</item>
+        <item>New Zealand Dollar</item>
+        <item>Norwegian Krone</item>
+        <item>Omani Rial</item>
+        <item>Pakistani Rupee</item>
+        <item>Philippine Peso</item>
+        <item>Polish Zloty</item>
+        <item>Qatari Riyal</item>
+        <item>Romanian New Leu</item>
+        <item>Russian Ruble</item>
+        <item>Saudi Arabian Riyal</item>
+        <item>Singapore Dollar</item>
+        <item>South African Rand</item>
+        <item>South Korean Won</item>
+        <item>Sri Lankan Rupee</item>
+        <item>Swedish Krona</item>
+        <item>Swiss Franc</item>
+        <item>Taiwan New Dollar</item>
+        <item>Thai Baht</item>
+        <item>Trinidadian Dollar</item>
+        <item>Turkish Lira</item>
+        <item>United States Dollar</item>
+        <item>Venezuelan Bolivar</item>
     </string-array>
-    <string-array name="abbrev_types">
-        <item>VARCHAR</item>
-        <item>VARCHAR</item>
-        <item>VARCHAR</item>
+
+    <string-array name="currency_names_abbrev">
+        <item>ARS</item>
+        <item>AUD</item>
+        <item>BHD</item>
+        <item>BWP</item>
+        <item>BRL</item>
+        <item>GBP</item>
+        <item>BND</item>
+        <item>BGN</item>
+        <item>CAD</item>
+        <item>CLP</item>
+        <item>CNY</item>
+        <item>COP</item>
+        <item>HRK</item>
+        <item>CZK</item>
+        <item>DKK</item>
+        <item>AED</item>
+        <item>EUR</item>
+        <item>HKD</item>
+        <item>HUF</item>
+        <item>ISK</item>
+        <item>INR</item>
+        <item>IDR</item>
+        <item>IRR</item>
+        <item>ILS</item>
+        <item>JPY</item>
+        <item>KZT</item>
+        <item>KWD</item>
+        <item>LYD</item>
+        <item>MYR</item>
+        <item>MUR</item>
+        <item>MXN</item>
+        <item>NPR</item>
+        <item>NZD</item>
+        <item>NOK</item>
+        <item>OMR</item>
+        <item>PKR</item>
+        <item>PHP</item>
+        <item>PLN</item>
+        <item>QAR</item>
+        <item>RON</item>
+        <item>RUB</item>
+        <item>SAR</item>
+        <item>KRW</item>
+        <item>SGD</item>
+        <item>ZAR</item>
+        <item>LKR</item>
+        <item>SEK</item>
+        <item>CHF</item>
+        <item>TWD</item>
+        <item>THB</item>
+        <item>TTD</item>
+        <item>TRY</item>
+        <item>USD</item>
+        <item>VEB</item>
+    </string-array>
+
+    <string-array name="country_codes">
+        <item>AR</item>
+        <item>AU</item>
+        <item>BH</item>
+        <item>BW</item>
+        <item>BR</item>
+        <item>GB</item>
+        <item>BN</item>
+        <item>BG</item>
+        <item>CA</item>
+        <item>CL</item>
+        <item>CN</item>
+        <item>CO</item>
+        <item>HR</item>
+        <item>CZ</item>
+        <item>DK</item>
+        <item>AE</item>
+        <item>DE</item>
+        <item>HK</item>
+        <item>HU</item>
+        <item>IS</item>
+        <item>IN</item>
+        <item>ID</item>
+        <item>IR</item>
+        <item>IL</item>
+        <item>JP</item>
+        <item>KZ</item>
+        <item>KW</item>
+        <item>LY</item>
+        <item>MY</item>
+        <item>MU</item>
+        <item>MX</item>
+        <item>NP</item>
+        <item>NZ</item>
+        <item>NO</item>
+        <item>OM</item>
+        <item>PK</item>
+        <item>PH</item>
+        <item>PL</item>
+        <item>QA</item>
+        <item>RO</item>
+        <item>RU</item>
+        <item>SA</item>
+        <item>KR</item>
+        <item>SG</item>
+        <item>ZA</item>
+        <item>LK</item>
+        <item>SE</item>
+        <item>CH</item>
+        <item>TW</item>
+        <item>TH</item>
+        <item>TT</item>
+        <item>TR</item>
+        <item>US</item>
+        <item>VE</item>
     </string-array>
 </resources>

@@ -84,8 +84,29 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         database.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
+    /**
+     * Update a record in the database based on the first column's value
+     *
+     * @param values  Values to be updated in database for entry
+     * @throws IllegalArgumentException columns.length != values.length
+     *         || columns != database.columns
+     */
+    public void updateRecord(String[] values) {
+        if (columns.length != values.length) {
+            throw new IllegalArgumentException();
+        }
+        for (String str : columns) {
+            if (str != null) {
+                throw new IllegalArgumentException();
+            }
+        }
+        ContentValues content = constructContent(values);
+        SQLiteDatabase db = getWritableDatabase();
+        db.update(table, content, columns[0] + " = ?", new String[]{values[0]});
+    }
+
     // Helper method to compile columns and values to be inserted
-    private ContentValues constructContent(String[] columns, String[] values) {
+    private ContentValues constructContent(String[] values) {
         ContentValues content = new ContentValues();
         for (int i = 0; i < columns.length; i++) {
             content.put(columns[i], values[i]);
@@ -94,25 +115,13 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Update a record in the database based on the first column's value
+     * Deletes the record where the first column matches the given key
      *
-     * @param columns Columns in database
-     * @param values  Values to be updated in database for entry
-     * @throws IllegalArgumentException columns.length != values.length
-     *         || columns != database.columns
+     * @param key Defining column value for a given entry
      */
-    public void updateRecord(String[] columns, String[] values) {
-        if (columns.length != values.length) {
-            throw new IllegalArgumentException();
-        }
-        for (int i = 0; i < columns.length; i++) {
-            if (columns[i] != null && !this.columns[i].equals(columns[i])) {
-                throw new IllegalArgumentException();
-            }
-        }
-        ContentValues content = constructContent(columns, values);
-        SQLiteDatabase db = getWritableDatabase();
-        db.update(table, content, columns[0] + " = ?", new String[]{values[0]});
+    public void removeRecord(String key) {
+        SQLiteDatabase db = getReadableDatabase();
+        db.delete(table, columns[0] + "='" + key + "'", null);
     }
 
     /**
@@ -136,7 +145,9 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     public boolean tableExists(String table) {
         SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.query("SQLITE_MASTER", null, "type=\'table\' AND name=\'" + table + "\'", null, null, null, null);
-        return cursor.getCount() > 0;
+        boolean result = cursor.getCount() > 0;
+        cursor.close();
+        return result;
     }
 
 }
