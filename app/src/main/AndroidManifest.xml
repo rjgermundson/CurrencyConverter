@@ -26,10 +26,21 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ItemList.ItemList"
-            android:label="ItemList"
-            android:theme="@style/AppTheme.NoActionBar">
+        <activity
+            android:name=".ItemListActivity.ItemListActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustNothing">
         </activity>
+
+        <activity
+            android:name=".Settings.SettingsActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustNothing">
+
+        </activity>
+
     </application>
 
 </manifest>

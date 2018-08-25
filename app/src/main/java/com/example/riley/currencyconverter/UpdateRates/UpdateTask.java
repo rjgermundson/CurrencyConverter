@@ -48,6 +48,7 @@ public class UpdateTask extends AsyncTask<Activity, String, Boolean> {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(ratesColumns[0], currency);
                 contentValues.put(ratesColumns[1], rate);
+                System.err.println(rate);
                 helper.insertRecord(contentValues);
             }
         } catch (Exception e) {

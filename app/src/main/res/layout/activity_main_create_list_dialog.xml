@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="4sp"
+            android:paddingStart="4sp"
             android:paddingTop="4sp"
             android:text="@string/list_name"
             android:textSize="18sp" />
@@ -24,12 +24,12 @@
             android:imeOptions="actionNext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLength="40" />
+            android:maxLength="20" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="4sp"
+            android:paddingStart="4sp"
             android:paddingTop="4sp"
             android:text="@string/list_description"
             android:textSize="18sp" />
@@ -60,7 +60,7 @@
                 android:id="@+id/create_list_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Save"
+                android:text="@string/save"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />

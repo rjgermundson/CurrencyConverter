@@ -5,18 +5,20 @@ import android.os.AsyncTask;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Scanner;
 
 /**
- * The WebScraper will take the currency rates from x-rates.com and create or update
+ * The WebScraper will take the currency rates from the Internet and create or update
  * a local database for currency abbreviations and currency rates
  *
  * Returns a null table of currencies if connection was interrupted
  */
 public class WebScraper extends AsyncTask<String, Void, Hashtable<String, Double>> {
 
-    private static final String X_RATES = "https://x-rates.com/table/?from=USD&amount=1";
+    private static final String CURRENCY_SITE = "https://www.mycurrency.net";
     private Hashtable<String, String> abbreviations;
     private String defaultCurrency;
 
@@ -61,27 +63,35 @@ public class WebScraper extends AsyncTask<String, Void, Hashtable<String, Double
         }
 
         // Parse HTML for currency rates
-        Hashtable<String, Double> rates = new Hashtable<>();
+
+        List<String> currencyCodes = new ArrayList<>();
+        List<Double> currencyRates = new ArrayList<>();
         while (scanner.hasNext()) {
             String currLine = scanner.nextLine();
-            if (currLine.contains("<table class=\"tablesorter")){
+            if (currLine.contains("<table class='table table-bordered table-striped'")){
                 while (scanner.hasNextLine()) {
-                    String currEntry = scanner.nextLine();
-                    if (currEntry.contains("<tr>")) {
-                        // Parse table entry for rate
-                        currEntry = scanner.nextLine().trim();
-                        if (currEntry.startsWith("<td>")) {
-                            currEntry = currEntry.substring(4, currEntry.length() - 5);
-                            double currRate = parseTableEntry(scanner);
-                            rates.put(abbreviations.get(currEntry), currRate);
+                    currLine = scanner.nextLine();
+                    if (currLine.contains("<tr class='country'")) {
+                        scanner.nextLine();
+                        scanner.nextLine();
+                        String currencyCode = scanner.nextLine().trim().substring(20, 23);
+                        while (!currLine.contains("class='money' data-rate=")) {
+                            currLine = scanner.nextLine();
                         }
-                    } else if (currEntry.contains("</table>")) {
-                        break;
+                        String currRate = currLine.trim().substring(25);
+                        currRate = currRate.substring(0, currRate.indexOf('\''));
+                        currencyCodes.add(currencyCode);
+                        currencyRates.add(Double.parseDouble(currRate));
                     }
                 }
             }
         }
+
         scanner.close();
+        Hashtable<String, Double> rates = new Hashtable<>();
+        for (int i = 0; i < currencyCodes.size(); i++) {
+            rates.put(currencyCodes.get(i), currencyRates.get(i));
+        }
         rates.put("USD", 1.0);
         // Reshuffle rates if defaultCurrency not USD
         if (!defaultCurrency.equals("USD")) {
@@ -91,21 +101,11 @@ public class WebScraper extends AsyncTask<String, Void, Hashtable<String, Double
                 rates.put(currency, rates.get(currency) * fromUSD);
             }
         }
+        System.err.println(rates.size());
+        for (String code : rates.keySet()) {
+            System.err.println(code + " : " + rates.get(code));
+        }
         return rates;
-    }
-
-    /**
-     * Parses the given table entry for the current rate to defaultCurrency
-     * @requires Scanner is pointing to a currency rate table entry
-     * @param scanner Scanner for rates table HTML
-     * @return Conversion rate from abbrev to defaultCurrency
-     */
-    private double parseTableEntry(Scanner scanner) {
-        scanner.nextLine();
-        String rate = scanner.nextLine().trim();
-        rate = rate.substring(rate.indexOf('>') + 1);
-        rate = rate.substring(rate.indexOf('>') + 1, rate.length() - 9);
-        return Double.parseDouble(rate);
     }
 
     /**
@@ -114,8 +114,9 @@ public class WebScraper extends AsyncTask<String, Void, Hashtable<String, Double
      * @throws IOException If no Internet connection or connection interrupted
      */
     private Scanner getScanner() throws IOException {
-        URL site = new URL(X_RATES);
+        URL site = new URL(CURRENCY_SITE);
         URLConnection connection = site.openConnection();
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
         return new Scanner(connection.getInputStream());
     }
 }
