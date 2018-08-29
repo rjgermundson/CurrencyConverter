@@ -3,8 +3,10 @@ package com.example.riley.currencyconverter.LocalStorage;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.ContactsContract;
 
 public class SQLiteHelper extends SQLiteOpenHelper {
     private static final String DEFAULT_DATABASE_NAME = "ITEM_DATABASE";
@@ -34,7 +36,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      */
     public SQLiteHelper(Context context, String databaseName, String table, String[] columns, String[] types) {
         super(context, databaseName + ".db", null, DATABASE_VERSION);
-        this.table = table;
+        this.table = DatabaseUtils.sqlEscapeString(table);
         this.columns = columns;
         this.types = types;
         createTable(getReadableDatabase());
@@ -109,7 +111,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     private ContentValues constructContent(String[] values) {
         ContentValues content = new ContentValues();
         for (int i = 0; i < columns.length; i++) {
-            content.put(columns[i], values[i]);
+            content.put(columns[i], DatabaseUtils.sqlEscapeString(values[i]));
         }
         return content;
     }
@@ -121,7 +123,14 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      */
     public void removeRecord(String key) {
         SQLiteDatabase db = getReadableDatabase();
-        db.delete(table, columns[0] + "='" + key + "'", null);
+        Cursor cursor = getTable(key);
+        key = DatabaseUtils.sqlEscapeString(key);
+        System.err.println(key);
+        while (cursor.moveToNext()) {
+            System.err.println(cursor.getColumnIndex(cursor.getColumnName(0)));
+        }
+
+        db.delete(table, columns[0] + "=" + key, null);
     }
 
     /**
@@ -132,6 +141,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      * @return Cursor pointing to beginning of table
      */
     public Cursor getTable(String table) {
+        table = DatabaseUtils.sqlEscapeString(table);
         SQLiteDatabase database = getReadableDatabase();
         return database.rawQuery("SELECT * FROM " + table, null);
     }
@@ -143,8 +153,9 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      * @return True if table exists, false otherwise
      */
     public boolean tableExists(String table) {
+        table = DatabaseUtils.sqlEscapeString(table);
         SQLiteDatabase database = getReadableDatabase();
-        Cursor cursor = database.query("SQLITE_MASTER", null, "type=\'table\' AND name=\'" + table + "\'", null, null, null, null);
+        Cursor cursor = database.query("SQLITE_MASTER", null, "type=\'table\' AND name=" + table, null, null, null, null);
         boolean result = cursor.getCount() > 0;
         cursor.close();
         return result;

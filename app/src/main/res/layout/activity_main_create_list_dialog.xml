@@ -21,10 +21,11 @@
 
         <EditText
             android:id="@+id/edit_list_name"
-            android:imeOptions="actionNext"
+            android:imeOptions="actionDone"
+            android:inputType="text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLength="20" />
+            android:maxLength="30" />
 
         <TextView
             android:layout_width="match_parent"
@@ -47,14 +48,10 @@
 
             <Spinner
                 android:id="@+id/create_list_spinner_currencies"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_width="0dp"
+                android:layout_height="52sp"
+                android:layout_weight="1">
             </Spinner>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
 
             <Button
                 android:id="@+id/create_list_button"

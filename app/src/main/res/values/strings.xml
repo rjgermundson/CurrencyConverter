@@ -10,10 +10,10 @@
     <string name="save">Save</string>
     <string name="location_prompt">Use Location</string>
 
-    <string name="list_name">List Name (20 Chars)</string>
+    <string name="list_name">List Name (30 Chars)</string>
     <string name="list_description">List Description</string>
 
-    <string name="item_name">Item Name (20 Chars)</string>
+    <string name="item_name">Item Name (30 Chars)</string>
     <string name="item_description">Item Description</string>
     <string name="item_cost">Cost</string>
 

@@ -6,13 +6,15 @@
         <item>LOCAL_CURRENCY</item>
         <item>TOTAL</item>
         <item>MODIFIED</item>
+        <item>CREATED</item>
     </string-array>
     <string-array name="list_types">
         <item>VARCHAR</item>
         <item>VARCHAR</item>
         <item>VARCHAR</item>
         <item>DECIMAL(12,5)</item>
-        <item>DECIMAL(12,5)</item>
+        <item>VARCHAR</item>
+        <item>VARCHAR</item>
     </string-array>
     <string-array name="items_columns">
         <item>NAME</item>
@@ -21,14 +23,12 @@
         <item>DEFAULT_COST</item>
         <item>DATE_ADDED</item>
         <item>COORDINATES</item>
-        <item>IMAGE</item>
     </string-array>
     <string-array name="items_types">
         <item>VARCHAR</item>
         <item>VARCHAR</item>
         <item>DECIMAL(12,5)</item>
         <item>DECIMAL(12,5)</item>
-        <item>VARCHAR</item>
         <item>VARCHAR</item>
         <item>VARCHAR</item>
     </string-array>
