@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.ContactsContract;
 
 public class SQLiteHelper extends SQLiteOpenHelper {
     private static final String DEFAULT_DATABASE_NAME = "ITEM_DATABASE";
@@ -55,11 +54,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             builder.append(" ");
             builder.append(types[i]);
         }
-        builder.append(", CONSTRAINT ");
-        builder.append(columns[0]);
-        builder.append("_unique UNIQUE (");
-        builder.append(columns[0]);
-        builder.append("));");
+        builder.append(");");
         database.execSQL(builder.toString());
     }
 
@@ -83,7 +78,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             throw new IllegalArgumentException();
         }
         SQLiteDatabase database = getReadableDatabase();
-        database.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+        database.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_NONE);
     }
 
     /**
@@ -123,7 +118,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      */
     public void removeRecord(String key) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = getTable(key);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + table, null);
         key = DatabaseUtils.sqlEscapeString(key);
         System.err.println(key);
         while (cursor.moveToNext()) {
@@ -144,6 +139,12 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         table = DatabaseUtils.sqlEscapeString(table);
         SQLiteDatabase database = getReadableDatabase();
         return database.rawQuery("SELECT * FROM " + table, null);
+    }
+
+    public void dropTable(String table) {
+        table = DatabaseUtils.sqlEscapeString(table);
+        SQLiteDatabase database = getReadableDatabase();
+        database.execSQL("DROP TABLE " + table);
     }
 
     /**

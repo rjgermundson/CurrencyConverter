@@ -1,34 +1,64 @@
 package com.example.riley.currencyconverter.ItemListActivity;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.riley.currencyconverter.LocalStorage.SQLiteHelper;
 import com.example.riley.currencyconverter.MainActivity.GetLocalCurrency;
 import com.example.riley.currencyconverter.R;
 import com.example.riley.currencyconverter.Settings.SettingsActivity;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
 public class ItemListActivity extends AppCompatActivity {
     private String listName;
+    private SQLiteHelper listHelper;
+    private String localCurrency;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
         setContentView(R.layout.item_list_activity);
         listName = getIntent().getExtras().getString(getApplicationContext().getString(R.string.list_name));
+        localCurrency = getIntent().getExtras().getString(getApplicationContext().getString(R.string.local_currency));
+        recyclerView = findViewById(R.id.item_list_recycler);
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
+        String[] itemColumns = getResources().getStringArray(R.array.items_columns);
+        String[] itemTypes = getResources().getStringArray(R.array.items_types);
+        listHelper = new SQLiteHelper(getApplicationContext(), listName, itemColumns, itemTypes);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -40,6 +70,50 @@ public class ItemListActivity extends AppCompatActivity {
                 save.setOnClickListener(new CreateItemListener(alert.getDialog()));
             }
         });
+        ItemAdapter adapter = getItemAdapter();
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(adapter);
+    }
+
+    private ItemAdapter getItemAdapter() {
+        List<ItemEntry> items = getItems();
+
+        SQLiteDatabase db = listHelper.getReadableDatabase();
+        String table = getResources().getString(R.string.rates_table);
+        String[] ratesColumns = getResources().getStringArray(R.array.rates_columns);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + table + " WHERE " + ratesColumns[0] + "='" + localCurrency + "'", null);
+        cursor.moveToNext();
+        Double rate = cursor.getDouble(cursor.getColumnIndex(ratesColumns[1]));
+        cursor.close();
+
+        SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
+        String defaultCurrencyCode = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
+
+        return new ItemAdapter(this, items, listName, localCurrency, defaultCurrencyCode, rate);
+    }
+
+    /**
+     * Get list of items that are a part of this list, to be displayed in recyclerview
+     * @return list of items for list
+     */
+    private List<ItemEntry> getItems() {
+        List<ItemEntry> items = new ArrayList<>();
+        Cursor cursor = listHelper.getTable(listName);
+        String[] itemColumns = getResources().getStringArray(R.array.items_columns);
+
+        while (cursor.moveToNext()) {
+            String name = cursor.getString(cursor.getColumnIndex(itemColumns[0]));
+            String description = cursor.getString(cursor.getColumnIndex(itemColumns[1]));
+            double localCost = cursor.getDouble(cursor.getColumnIndex(itemColumns[2]));
+            String dateAdded = cursor.getString(cursor.getColumnIndex(itemColumns[3]));
+            double latitude = cursor.getDouble(cursor.getColumnIndex(itemColumns[4]));
+            double longitude = cursor.getDouble(cursor.getColumnIndex(itemColumns[5]));
+            ItemEntry entry = new ItemEntry(name, description, localCost, dateAdded, latitude, longitude);
+            items.add(entry);
+        }
+        return items;
     }
 
 
@@ -77,9 +151,35 @@ public class ItemListActivity extends AppCompatActivity {
             String name = ((EditText) dialog.findViewById(R.id.edit_item_name)).getText().toString();
             if (name.length() > 0) {
                 // Have actual item with name
-
+                String description = ((EditText) dialog.findViewById(R.id.edit_item_description)).getText().toString();
+                String dateCreated = Calendar.getInstance().getTime().toString();
+                double cost = Double.parseDouble(((EditText) dialog.findViewById(R.id.edit_item_cost)).getText().toString());
+                boolean useLocation = ((CheckBox) dialog.findViewById(R.id.location_check_box)).isChecked();
+                double latitude = getResources().getInteger(R.integer.INVALID_COORDINATE);
+                double longitude = getResources().getInteger(R.integer.INVALID_COORDINATE);
+                if (useLocation && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // Indicated to use location and can use location
+                    LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                    Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    latitude = lastLocation.getLatitude();
+                    longitude = lastLocation.getLongitude();
+                }
+                String[] itemColumns = getResources().getStringArray(R.array.items_columns);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(itemColumns[0], name);
+                contentValues.put(itemColumns[1], description);
+                contentValues.put(itemColumns[2], cost);
+                contentValues.put(itemColumns[3], dateCreated);
+                contentValues.put(itemColumns[4], latitude);
+                contentValues.put(itemColumns[5], longitude);
+                listHelper.insertRecord(contentValues);
+                ItemEntry entry = new ItemEntry(name, description, cost, dateCreated, latitude, longitude);
+                ((ItemAdapter) recyclerView.getAdapter()).addEntry(entry);
+                dialog.dismiss();
             } else {
-
+                // Reprompt for information
             }
         }
     }

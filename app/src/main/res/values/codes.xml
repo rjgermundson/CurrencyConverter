@@ -2,4 +2,5 @@
 <resources>
     <integer name="PERMISSION_FINE_LOCATION_REQUEST_CODE">2</integer>
     <integer name="PERMISSION_COARSE_LOCATION_REQUEST_CODE">1</integer>
+    <integer name="INVALID_COORDINATE">999</integer>
 </resources>

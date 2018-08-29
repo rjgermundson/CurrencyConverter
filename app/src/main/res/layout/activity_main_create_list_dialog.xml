@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="4sp"
             android:paddingTop="4sp"
-            android:text="@string/list_name"
+            android:text="@string/input_list_name"
             android:textSize="18sp" />
 
         <EditText
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="4sp"
             android:paddingTop="4sp"
-            android:text="@string/list_description"
+            android:text="@string/input_list_description"
             android:textSize="18sp" />
 
         <EditText

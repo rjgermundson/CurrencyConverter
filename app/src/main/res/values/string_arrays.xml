@@ -20,17 +20,17 @@
         <item>NAME</item>
         <item>DESCRIPTION</item>
         <item>LOCAL_COST</item>
-        <item>DEFAULT_COST</item>
         <item>DATE_ADDED</item>
-        <item>COORDINATES</item>
+        <item>LATITUDE</item>
+        <item>LONGITUDE</item>
     </string-array>
     <string-array name="items_types">
         <item>VARCHAR</item>
         <item>VARCHAR</item>
         <item>DECIMAL(12,5)</item>
-        <item>DECIMAL(12,5)</item>
         <item>VARCHAR</item>
-        <item>VARCHAR</item>
+        <item>DECIMAL(3,8)</item>
+        <item>DECIMAL(3,8)</item>
     </string-array>
     <string-array name="rates_columns">
         <item>LOCAL_CURRENCY</item>

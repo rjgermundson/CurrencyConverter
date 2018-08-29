@@ -10,15 +10,18 @@
     <string name="save">Save</string>
     <string name="location_prompt">Use Location</string>
 
-    <string name="list_name">List Name (30 Chars)</string>
-    <string name="list_description">List Description</string>
+    <string name="input_list_name">List Name (30 Chars)</string>
+    <string name="input_list_description">List Description</string>
 
-    <string name="item_name">Item Name (30 Chars)</string>
-    <string name="item_description">Item Description</string>
-    <string name="item_cost">Cost</string>
+    <string name="input_item_name">Item Name (30 Chars)</string>
+    <string name="input_item_description">Item Description</string>
+    <string name="input_item_cost">Cost</string>
 
     <string name="list_table">LIST_TABLE</string>
     <string name="rates_table">CURRENCY_TABLE</string>
+
+    <string name="list_name">ITEM_LIST_NAME</string>
+    <string name="local_currency">ITEM_LIST_LOCAL_CURRENCY</string>
 
     <string name="placeholder_local_currency">LCL</string>
     <string name="placeholder_local_rate">LCL_RATE</string>
@@ -27,4 +30,5 @@
     <string name="placeholder_item_name">ITEM_NAME</string>
     <string name="placeholder_item_description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</string>
     <string name="placeholder_last_modified">LAST_MODIFIED XX.XX.XX XX.XX.XX</string>
+    <string name="placeholder_date_created">CREATED XX.XX.XX XX.XX.XX</string>
 </resources>
