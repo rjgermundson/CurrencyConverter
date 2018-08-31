@@ -7,6 +7,8 @@
 
         <LinearLayout
             android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:padding="4dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -17,34 +19,33 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1">
-            <LinearLayout
-                android:orientation="horizontal"
+            <TextView
+                android:id="@+id/item_name"
+                android:text="@string/placeholder_item_name"
+                android:textSize="24sp"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/item_name"
-                    android:text="@string/placeholder_item_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
+                android:layout_height="wrap_content" />
             </LinearLayout>
-        </LinearLayout>
 
         <LinearLayout
             android:orientation="vertical"
+            android:padding="4dp"
             android:layout_gravity="end"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <TextView
                 android:id="@+id/item_default_cost"
+                android:layout_gravity="end"
                 android:text="@string/placeholder_default_currency"
+                android:textSize="20sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/item_local_cost"
+                android:layout_gravity="end"
                 android:text="@string/placeholder_local_currency"
+                android:textColor="@color/gray"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -54,6 +55,7 @@
     <TextView
         android:id="@+id/item_date_added"
         android:text="@string/placeholder_date_created"
+        android:textSize="8sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

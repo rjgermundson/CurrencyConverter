@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.ContactsContract;
 
 public class SQLiteHelper extends SQLiteOpenHelper {
     private static final String DEFAULT_DATABASE_NAME = "ITEM_DATABASE";
@@ -84,22 +85,24 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     /**
      * Update a record in the database based on the first column's value
      *
-     * @param values  Values to be updated in database for entry
-     * @throws IllegalArgumentException columns.length != values.length
-     *         || columns != database.columns
+     * @requires identifier and value are formatted properly
+     * @param identifierColumn Column which will be used to identify which rows to update
+     * @param identifier Value for which rows will be checked for whether they match
+     * @param column Column in which the values will be updated
+     * @param value  Value to be updated in database for entry
+     * @throws IllegalArgumentException identifierColumn >= columns.length
+     *              || column >= columns.length
      */
-    public void updateRecord(String[] values) {
-        if (columns.length != values.length) {
+    public void updateRecord(int identifierColumn, String identifier, int column, String value) {
+        if (identifierColumn >= columns.length || column >= columns.length) {
             throw new IllegalArgumentException();
         }
-        for (String str : columns) {
-            if (str != null) {
-                throw new IllegalArgumentException();
-            }
-        }
-        ContentValues content = constructContent(values);
-        SQLiteDatabase db = getWritableDatabase();
-        db.update(table, content, columns[0] + " = ?", new String[]{values[0]});
+        SQLiteDatabase db = getReadableDatabase();
+        String columnName = columns[column];
+        ContentValues content = new ContentValues();
+        content.put(columnName, value);
+
+        db.update(table, content, columns[identifierColumn] + " = ?", new String[]{identifier});
     }
 
     // Helper method to compile columns and values to be inserted
@@ -118,13 +121,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      */
     public void removeRecord(String key) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + table, null);
         key = DatabaseUtils.sqlEscapeString(key);
-        System.err.println(key);
-        while (cursor.moveToNext()) {
-            System.err.println(cursor.getColumnIndex(cursor.getColumnName(0)));
-        }
-
         db.delete(table, columns[0] + "=" + key, null);
     }
 

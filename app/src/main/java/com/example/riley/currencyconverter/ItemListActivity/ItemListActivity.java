@@ -10,8 +10,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -28,6 +26,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.riley.currencyconverter.LocalStorage.SQLiteHelper;
@@ -35,7 +34,6 @@ import com.example.riley.currencyconverter.MainActivity.GetLocalCurrency;
 import com.example.riley.currencyconverter.R;
 import com.example.riley.currencyconverter.Settings.SettingsActivity;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -59,10 +57,11 @@ public class ItemListActivity extends AppCompatActivity {
         String[] itemColumns = getResources().getStringArray(R.array.items_columns);
         String[] itemTypes = getResources().getStringArray(R.array.items_types);
         listHelper = new SQLiteHelper(getApplicationContext(), listName, itemColumns, itemTypes);
+        setupListInfo();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DialogFragment alert = new CreateItemDialog();
+                DialogFragment alert = CreateItemDialog.getInstance(localCurrency);
                 alert.show(getFragmentManager(), "create");
                 getFragmentManager().beginTransaction().commit();
                 getFragmentManager().executePendingTransactions();
@@ -77,9 +76,47 @@ public class ItemListActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    /**
+     * Initializes the TextViews in the list information header in the activity
+     */
+    private void setupListInfo() {
+        ((TextView) findViewById(R.id.list_item_name)).setText(listName);
+        ((TextView) findViewById(R.id.list_item_local_currency)).setText(localCurrency);
+
+
+        SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
+        String defaultCurrencyCode = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
+        double rate = getRate();
+        ((TextView) findViewById(R.id.list_item_rate)).setText(String.format("%.2f", rate) + "/" + defaultCurrencyCode);
+
+        SQLiteDatabase db = listHelper.getReadableDatabase();
+        String table = getResources().getString(R.string.list_table);
+        String[] listColumns = getResources().getStringArray(R.array.list_columns);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + table + " WHERE " + listColumns[0] + "='" + listName + "'", null);
+        cursor.moveToNext();
+        Double total = cursor.getDouble(cursor.getColumnIndex(listColumns[3]));
+        cursor.close();
+        ((TextView) findViewById(R.id.list_item_default_total)).setText(String.format("%.2f", total / rate) + " " + defaultCurrencyCode);
+    }
+
+    /**
+     * Sets up item adapter for the recycler view
+     * @return The item adapter for the recycler view
+     */
     private ItemAdapter getItemAdapter() {
         List<ItemEntry> items = getItems();
 
+        SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
+        String defaultCurrencyCode = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
+
+        return new ItemAdapter(this, items, listName, localCurrency, defaultCurrencyCode, getRate(), (TextView) findViewById(R.id.list_item_default_total));
+    }
+
+    /**
+     * Returns the conversion rate from the default currency to localCurrency
+     * @return The conversion rate
+     */
+    private double getRate() {
         SQLiteDatabase db = listHelper.getReadableDatabase();
         String table = getResources().getString(R.string.rates_table);
         String[] ratesColumns = getResources().getStringArray(R.array.rates_columns);
@@ -87,12 +124,9 @@ public class ItemListActivity extends AppCompatActivity {
         cursor.moveToNext();
         Double rate = cursor.getDouble(cursor.getColumnIndex(ratesColumns[1]));
         cursor.close();
-
-        SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
-        String defaultCurrencyCode = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
-
-        return new ItemAdapter(this, items, listName, localCurrency, defaultCurrencyCode, rate);
+        return rate;
     }
+
 
     /**
      * Get list of items that are a part of this list, to be displayed in recyclerview
@@ -153,7 +187,11 @@ public class ItemListActivity extends AppCompatActivity {
                 // Have actual item with name
                 String description = ((EditText) dialog.findViewById(R.id.edit_item_description)).getText().toString();
                 String dateCreated = Calendar.getInstance().getTime().toString();
-                double cost = Double.parseDouble(((EditText) dialog.findViewById(R.id.edit_item_cost)).getText().toString());
+                String costText = ((EditText) dialog.findViewById(R.id.edit_item_cost)).getText().toString();
+                double cost = 0;
+                if (costText.length() != 0) {
+                    cost =  Double.parseDouble(costText);
+                }
                 boolean useLocation = ((CheckBox) dialog.findViewById(R.id.location_check_box)).isChecked();
                 double latitude = getResources().getInteger(R.integer.INVALID_COORDINATE);
                 double longitude = getResources().getInteger(R.integer.INVALID_COORDINATE);
@@ -175,12 +213,46 @@ public class ItemListActivity extends AppCompatActivity {
                 contentValues.put(itemColumns[4], latitude);
                 contentValues.put(itemColumns[5], longitude);
                 listHelper.insertRecord(contentValues);
+                updateListInfo(addToTotal(cost));
                 ItemEntry entry = new ItemEntry(name, description, cost, dateCreated, latitude, longitude);
                 ((ItemAdapter) recyclerView.getAdapter()).addEntry(entry);
                 dialog.dismiss();
             } else {
                 // Reprompt for information
+
             }
         }
+    }
+
+    /**
+     * Adds the given cost to the current lists total price
+     * @param cost The cost to be added
+     * @return The new total for the current list
+     */
+    private double addToTotal(double cost) {
+        String listTable = getResources().getString(R.string.list_table);
+        String[] listColumns = getResources().getStringArray(R.array.list_columns);
+        String[] listTypes = getResources().getStringArray(R.array.list_types);
+        SQLiteHelper totalHelper = new SQLiteHelper(getApplicationContext(), listTable, listColumns, listTypes);
+
+        SQLiteDatabase db = totalHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + listTable + " WHERE " + listColumns[0] + "='" + listName + "'", null);
+        cursor.moveToNext();
+        double total = cursor.getDouble(cursor.getColumnIndex(listColumns[3]));
+        cursor.close();
+        total += cost;
+        totalHelper.updateRecord(0, listName, 3, Double.toString(total));
+        return total;
+    }
+
+    /**
+     * Updates the total cost of the list
+     *
+     * @param total The new total for the list
+     */
+    private void updateListInfo(double total) {
+        SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
+        String defaultCurrencyCode = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
+        ((TextView) findViewById(R.id.list_item_default_total)).setText(String.format("%.2f", total / getRate()) + " " + defaultCurrencyCode);
     }
 }

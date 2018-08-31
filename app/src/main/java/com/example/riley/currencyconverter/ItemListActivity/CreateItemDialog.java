@@ -10,10 +10,21 @@ import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 import com.example.riley.currencyconverter.R;
 
 public class CreateItemDialog extends DialogFragment {
+    private static CreateItemDialog dialog;
+    private static String localCurrency = "LCL";
+
+    public static CreateItemDialog getInstance(String currency) {
+        localCurrency = currency;
+        if (dialog == null) {
+            dialog = new CreateItemDialog();
+        }
+        return dialog;
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -30,6 +41,8 @@ public class CreateItemDialog extends DialogFragment {
             // Set use location as true for default when access to location is granted
             ((CheckBox) view.findViewById(R.id.location_check_box)).setChecked(true);
         }
+
+        ((TextView) view.findViewById(R.id.item_local_currency)).setText(localCurrency);
         builder.setView(view);
         return builder.create();
     }
