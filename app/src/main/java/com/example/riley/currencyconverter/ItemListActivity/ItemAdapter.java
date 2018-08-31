@@ -18,6 +18,7 @@ import com.example.riley.currencyconverter.R;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
     private Context context;
@@ -103,8 +104,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private void setTextViews(ItemAdapter.ItemViewHolder holder, ItemEntry entry) {
         holder.name.setText(entry.getName());
         holder.description.setText(entry.getDescription());
-        holder.localCost.setText(String.format("%.2f", entry.getCost()) + " " + localCurrencyCode);
-        holder.defaultCost.setText(String.format("%.2f", entry.getCost() / rate) + " " + defaultCurrencyCode);
+        holder.localCost.setText(context.getResources().getString(
+                R.string.total_format,
+                String.format(Locale.US, "%.2f", entry.getCost()),
+                localCurrencyCode));
+        holder.defaultCost.setText(context.getResources().getString(R.string.total_format,
+                String.format(Locale.US, "%.2f", entry.getCost() / rate),
+                defaultCurrencyCode));
         holder.dateAdded.setText(entry.getCreated());
     }
 
@@ -171,6 +177,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private void updateListInfo(double total) {
         SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.preferences_file), Context.MODE_PRIVATE);
         String defaultCurrencyCode = preferences.getString(context.getString(R.string.preferences_default_currency), "USD");
-        ((TextView) listInfo.findViewById(R.id.list_item_default_total)).setText(String.format("%.2f", total / rate) + " " + defaultCurrencyCode);
+        ((TextView) listInfo.findViewById(R.id.list_item_default_total)).setText(context.getResources().getString(R.string.total_format,
+                String.format(Locale.US, "%.2f", total / rate),
+                defaultCurrencyCode));
     }
 }

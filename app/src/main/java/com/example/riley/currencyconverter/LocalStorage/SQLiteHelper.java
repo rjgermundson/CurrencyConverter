@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.ContactsContract;
 
 public class SQLiteHelper extends SQLiteOpenHelper {
     private static final String DEFAULT_DATABASE_NAME = "ITEM_DATABASE";

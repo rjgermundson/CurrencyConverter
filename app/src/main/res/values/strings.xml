@@ -20,6 +20,8 @@
 
     <string name="list_table">LIST_TABLE</string>
     <string name="rates_table">CURRENCY_TABLE</string>
+    <string name="rate_format">%1$s / %2$s</string>
+    <string name="total_format">%1$s %2$s</string>
 
     <string name="list_name">ITEM_LIST_NAME</string>
     <string name="local_currency">ITEM_LIST_LOCAL_CURRENCY</string>

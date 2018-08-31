@@ -3,6 +3,8 @@ package com.example.riley.currencyconverter.ItemListActivity;
 import android.Manifest;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -37,6 +39,7 @@ import com.example.riley.currencyconverter.Settings.SettingsActivity;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class ItemListActivity extends AppCompatActivity {
     private String listName;
@@ -48,8 +51,10 @@ public class ItemListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
         setContentView(R.layout.item_list_activity);
-        listName = getIntent().getExtras().getString(getApplicationContext().getString(R.string.list_name));
-        localCurrency = getIntent().getExtras().getString(getApplicationContext().getString(R.string.local_currency));
+        if (getIntent().getExtras() != null) {
+            listName = getIntent().getExtras().getString(getApplicationContext().getString(R.string.list_name));
+            localCurrency = getIntent().getExtras().getString(getApplicationContext().getString(R.string.local_currency));
+        }
         recyclerView = findViewById(R.id.item_list_recycler);
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -61,6 +66,7 @@ public class ItemListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dismissDialogFragments(getFragmentManager());
                 DialogFragment alert = CreateItemDialog.getInstance(localCurrency);
                 alert.show(getFragmentManager(), "create");
                 getFragmentManager().beginTransaction().commit();
@@ -77,6 +83,25 @@ public class ItemListActivity extends AppCompatActivity {
     }
 
     /**
+     * Clear any DialogFragments from the given FragmentManager and all of the
+     * child fragments
+     */
+    private void dismissDialogFragments(FragmentManager manager) {
+        List<Fragment> fragments = manager.getFragments();
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
+                if (fragment instanceof DialogFragment) {
+                    ((DialogFragment) fragment).dismissAllowingStateLoss();
+                }
+                FragmentManager childManager = fragment.getChildFragmentManager();
+                if (childManager != null) {
+                    dismissDialogFragments(childManager);
+                }
+            }
+        }
+    }
+
+    /**
      * Initializes the TextViews in the list information header in the activity
      */
     private void setupListInfo() {
@@ -87,7 +112,10 @@ public class ItemListActivity extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
         String defaultCurrencyCode = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
         double rate = getRate();
-        ((TextView) findViewById(R.id.list_item_rate)).setText(String.format("%.2f", rate) + "/" + defaultCurrencyCode);
+        ((TextView) findViewById(R.id.list_item_rate)).setText(
+                getApplication().getString(R.string.rate_format,
+                        String.format(Locale.US, "%.2f", rate),
+                        defaultCurrencyCode));
 
         SQLiteDatabase db = listHelper.getReadableDatabase();
         String table = getResources().getString(R.string.list_table);
@@ -96,7 +124,10 @@ public class ItemListActivity extends AppCompatActivity {
         cursor.moveToNext();
         Double total = cursor.getDouble(cursor.getColumnIndex(listColumns[3]));
         cursor.close();
-        ((TextView) findViewById(R.id.list_item_default_total)).setText(String.format("%.2f", total / rate) + " " + defaultCurrencyCode);
+        ((TextView) findViewById(R.id.list_item_default_total)).setText(
+                getApplication().getString(R.string.total_format,
+                        String.format(Locale.US, "%.2f", total / rate),
+                        defaultCurrencyCode));
     }
 
     /**
@@ -106,10 +137,13 @@ public class ItemListActivity extends AppCompatActivity {
     private ItemAdapter getItemAdapter() {
         List<ItemEntry> items = getItems();
 
-        SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
-        String defaultCurrencyCode = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
+        SharedPreferences preferences = getSharedPreferences(getApplication().getString(
+                R.string.preferences_file), Context.MODE_PRIVATE);
+        String defaultCurrencyCode = preferences.getString(getApplication().getString(
+                R.string.preferences_default_currency), "USD");
 
-        return new ItemAdapter(this, items, listName, localCurrency, defaultCurrencyCode, getRate(), (TextView) findViewById(R.id.list_item_default_total));
+        return new ItemAdapter(this, items, listName, localCurrency,
+                defaultCurrencyCode, getRate(), (TextView) findViewById(R.id.list_item_default_total));
     }
 
     /**
@@ -197,12 +231,18 @@ public class ItemListActivity extends AppCompatActivity {
                 double longitude = getResources().getInteger(R.integer.INVALID_COORDINATE);
                 if (useLocation && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                         != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        && ActivityCompat.checkSelfPermission(getApplicationContext(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // Indicated to use location and can use location
                     LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-                    Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    latitude = lastLocation.getLatitude();
-                    longitude = lastLocation.getLongitude();
+                    Location lastLocation = null;
+                    if (locationManager != null) {
+                        lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    }
+                    if (lastLocation != null) {
+                        latitude = lastLocation.getLatitude();
+                        longitude = lastLocation.getLongitude();
+                    }
                 }
                 String[] itemColumns = getResources().getStringArray(R.array.items_columns);
                 ContentValues contentValues = new ContentValues();
@@ -253,6 +293,7 @@ public class ItemListActivity extends AppCompatActivity {
     private void updateListInfo(double total) {
         SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
         String defaultCurrencyCode = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
-        ((TextView) findViewById(R.id.list_item_default_total)).setText(String.format("%.2f", total / getRate()) + " " + defaultCurrencyCode);
+        ((TextView) findViewById(R.id.list_item_default_total)).setText(getApplication().getResources().getString(
+                R.string.total_format, String.format(Locale.US, "%.2f", total / getRate()), defaultCurrencyCode));
     }
 }

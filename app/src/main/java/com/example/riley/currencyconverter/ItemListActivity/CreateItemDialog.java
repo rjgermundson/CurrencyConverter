@@ -15,15 +15,27 @@ import android.widget.TextView;
 import com.example.riley.currencyconverter.R;
 
 public class CreateItemDialog extends DialogFragment {
-    private static CreateItemDialog dialog;
-    private static String localCurrency = "LCL";
+    private static String localCurrency;
 
+    /**
+     * Constructor for CreateItemDialog object
+     * @throws UnsupportedOperationException if called before newInstance()
+     */
+    public CreateItemDialog() {
+        if (localCurrency == null) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Sets the localCurrency for CreateItemDialogs
+     *
+     * @param currency Local currency to be used for CreateItemDialogs
+     * @return A CreateItemDialog object
+     */
     public static CreateItemDialog getInstance(String currency) {
         localCurrency = currency;
-        if (dialog == null) {
-            dialog = new CreateItemDialog();
-        }
-        return dialog;
+        return new CreateItemDialog();
     }
 
     @Override
@@ -41,10 +53,8 @@ public class CreateItemDialog extends DialogFragment {
             // Set use location as true for default when access to location is granted
             ((CheckBox) view.findViewById(R.id.location_check_box)).setChecked(true);
         }
-
         ((TextView) view.findViewById(R.id.item_local_currency)).setText(localCurrency);
         builder.setView(view);
         return builder.create();
     }
-
 }
