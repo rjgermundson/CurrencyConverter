@@ -63,8 +63,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             public void onClick(View v) {
             }
         });
-
-
         // Set up long click listener that will open up a dialog allowing for deleting or
         // editing a record
         holder.view.setOnLongClickListener(new View.OnLongClickListener() {
