@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.riley.currencyconverter.FullListInfoActivity.FullListInfoActivity">
+
+    <item
+        android:id="@+id/action_close"
+        android:title="Save"
+        android:orderInCategory="0"
+        android:icon="@drawable/ic_check_black_24dp"
+        android:padding="18dp"
+        android:scaleType="fitCenter"
+        app:showAsAction="always"
+        app:contentInsetLeft="16dp"
+        />
+</menu>

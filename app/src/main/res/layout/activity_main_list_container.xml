@@ -6,137 +6,110 @@
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
     android:clipToPadding="false"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
     card_view:cardCornerRadius="4dp"
     card_view:cardElevation="8dp">
 
     <LinearLayout
         android:orientation="vertical"
-        android:transitionName="list_info"
+        android:background="@color/colorAccent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/list_item_name"
-            android:background="@color/colorPrimaryDark"
-            android:padding="8dp"
-            android:text="@string/placeholder_item_name"
-            android:fontFamily="@font/montserrat_semibold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxHeight="64dp"/>
-
         <LinearLayout
             android:orientation="horizontal"
-            android:padding="4dp"
-            android:background="@color/white"
             android:layout_width="match_parent"
-            android:layout_height="80dp">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:transitionName="@string/transition_main_to_full_info">
 
             <LinearLayout
                 android:orientation="vertical"
-                android:background="@color/colorPrimaryDark"
+                android:paddingTop="8dp"
+                android:paddingStart="8dp"
                 android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent">
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:padding="1dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.55">
+
+                <TextView
+                    android:id="@+id/list_item_name"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/montserrat_semibold"
+                    android:textSize="16sp"
+                    android:maxHeight="64dp"
+                    android:text="@string/placeholder_item_name" />
 
-                    <TextView
-                        android:id="@+id/list_item_local_currency"
-                        android:text="@string/placeholder_local_currency"
-                        android:textAlignment="center"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/list_item_rate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_local_rate"
+                    android:textSize="10sp"/>
 
-                    <LinearLayout
-                        android:orientation="vertical"
-                        android:background="@color/white"
-                        android:gravity="center_vertical"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-                        <TextView
-                            android:id="@+id/list_item_rate"
-                            android:background="@color/white"
-                            android:layout_gravity="center_vertical"
-                            android:text="@string/placeholder_local_rate"
-                            android:textAlignment="center"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
-                    </LinearLayout>
-                </LinearLayout>
             </LinearLayout>
 
             <TextView
-                android:layout_width="2dp"
-                android:layout_height="match_parent" />
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:background="@color/colorPrimaryDark"
+                android:id="@id/list_item_default_total"
+                android:padding="4dp"
                 android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent">
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:padding="1dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                    <TextView
-                        android:text="Total"
-                        android:textAlignment="center"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <LinearLayout
-                        android:orientation="vertical"
-                        android:background="@color/white"
-                        android:gravity="center_vertical"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <TextView
-                            android:id="@+id/list_item_default_total"
-                            android:layout_gravity="center_vertical"
-                            android:text="@string/placeholder_default_total"
-                            android:textAlignment="center"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
-
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:layout_weight="0.45"
+                android:layout_gravity="center_vertical"
+                android:text="@string/placeholder_default_total"
+                android:textSize="18sp"/>
         </LinearLayout>
 
         <TextView
-            android:background="@color/lightGray"
             android:layout_width="match_parent"
-            android:layout_height="1dp" />
+            android:layout_height="1dp"
+            android:background="@color/lightGray" />
 
         <TextView
-            android:id="@+id/list_item_date_touched"
+            android:id="@+id/list_item_description"
             android:background="@color/white"
-            android:paddingEnd="2dp"
-            android:paddingBottom="2dp"
-            android:text="@string/placeholder_last_modified"
-            android:textSize="8sp"
-            android:textAlignment="textEnd"
-            android:layout_gravity="end"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+            android:layout_height="0dp"
+            android:breakStrategy="high_quality"
+            android:padding="4dp"
+            android:text="@string/placeholder_item_description" />
 
-    <TextView
-        android:id="@+id/list_item_description"
-        android:text="@string/placeholder_item_description"
-        android:visibility="gone"
-        android:layout_width="0dp"
-        android:layout_height="60sp"
-        android:layout_weight="0.4"
-        android:padding="4dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/lightGray" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:background="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/list_item_date_touched"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="start"
+                android:paddingStart="2dp"
+                android:paddingBottom="2dp"
+                android:text="@string/placeholder_last_modified"
+                android:textAlignment="textStart"
+                android:textSize="8sp" />
+
+            <ImageView
+                android:id="@+id/list_description_expand"
+                android:layout_marginTop="-4dp"
+                android:layout_marginBottom="4dp"
+                android:layout_width="16dp"
+                android:layout_height="12dp"
+                android:layout_gravity="end"
+                android:paddingEnd="8dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_expand_more_black_24dp" />
+
+        </LinearLayout>
+    </LinearLayout>
 
 
 </android.support.v7.widget.CardView>

@@ -7,9 +7,12 @@
     <color name="darkGray">#A9A9A9</color>
     <color name="gray">#808080</color>
     <color name="black">#000000</color>
-    <color name="colorPrimary">#FFA30A</color>
-    <color name="colorPrimaryDark">#C15135</color>
-    <color name="colorAccent">#F9BC25</color>
-    <color name="colorSecondary">#8FDEA8</color>
-    <color name="colorSecondaryDark">#15313B</color>
+    <color name="colorPrimary">#E2711D</color>
+    <color name="colorPrimaryDark">#CC5803</color>
+    <color name="colorAccent">#FFD089</color>
+    <color name="colorSecondary">#FCF4E8</color>
+    <color name="colorSecondaryDark">#2A2B2A</color>
+    <color name="itemColorPrimary">#0E7C7B</color>
+    <color name="itemColorPrimaryDark">#0A4C4A</color>
+    <color name="itemColorAccent">#40C9A2</color>
 </resources>

@@ -2,6 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorSecondary"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ItemListActivity.ItemListActivity">
@@ -19,9 +20,7 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_main" />
-
+    
     <LinearLayout
         android:orientation="vertical"
         android:clipToPadding="false"

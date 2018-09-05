@@ -20,11 +20,16 @@
 
     <string name="list_table">LIST_TABLE</string>
     <string name="rates_table">CURRENCY_TABLE</string>
-    <string name="rate_format">%1$s / %2$s</string>
-    <string name="total_format">%1$s %2$s</string>
+    <string name="rate_format">%1$s %2$s / %3$s</string>
+    <string name="total_format">%2$s%1$s</string>
 
     <string name="list_name">ITEM_LIST_NAME</string>
     <string name="local_currency">ITEM_LIST_LOCAL_CURRENCY</string>
+
+    <string name="date">%1$s, %2$s</string>
+    <string name="modified_created">Last modified %1$s / Created %2$s</string>
+
+    <string name="transition_main_to_full_info">TRANSITION_MAIN_TO_INFO</string>
 
     <string name="placeholder_local_currency">LCL</string>
     <string name="placeholder_local_rate">LCL_RATE</string>

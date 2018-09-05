@@ -23,6 +23,7 @@
         <item>DATE_ADDED</item>
         <item>LATITUDE</item>
         <item>LONGITUDE</item>
+        <item>TYPE</item>
     </string-array>
     <string-array name="items_types">
         <item>VARCHAR</item>
@@ -31,6 +32,7 @@
         <item>VARCHAR</item>
         <item>DECIMAL(3,8)</item>
         <item>DECIMAL(3,8)</item>
+        <item>VARCHAR</item>
     </string-array>
     <string-array name="rates_columns">
         <item>LOCAL_CURRENCY</item>
@@ -509,5 +511,15 @@
         <item>VN</item>
         <item>YE</item>
         <item>ZM</item>
+    </string-array>
+
+    <string-array name="purchase_types">
+        <item>Entertainment</item>
+        <item>Food</item>
+        <item>Gift</item>
+        <item>Health</item>
+        <item>Souvenir</item>
+        <item>Transportation</item>
+        <item>Other</item>
     </string-array>
 </resources>

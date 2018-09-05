@@ -1,15 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorSecondary"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    tools:context=".MainActivity.MainActivity">
 
-    <LinearLayout
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            android:elevation="20dp"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:contentInsetStart="0dp">
+
+            <ImageButton
+                android:id="@+id/toolbar_close"
+                android:src="@drawable/ic_close_black_18dp"
+                android:background="@android:color/transparent"
+                android:padding="12dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="12dp"/>
+
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:layout_marginTop="?attr/actionBarSize"
+        android:padding="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <TextView
             android:layout_width="match_parent"
@@ -21,8 +56,8 @@
 
         <EditText
             android:id="@+id/edit_list_name"
-            android:imeOptions="actionDone"
-            android:inputType="text"
+            android:inputType="textCapWords"
+            android:imeOptions="actionNext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLength="30" />
@@ -37,34 +72,22 @@
 
         <EditText
             android:id="@+id/edit_description"
-            android:inputType="textMultiLine"
+            android:minHeight="52dp"
+            android:inputType="textCapSentences"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <LinearLayout
+        <Spinner
+            android:id="@+id/create_list_spinner_currencies"
+            android:layout_marginTop="32dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Spinner
-                android:id="@+id/create_list_spinner_currencies"
-                android:layout_width="0dp"
-                android:layout_height="52sp"
-                android:layout_weight="1">
-            </Spinner>
-
-            <Button
-                android:id="@+id/create_list_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/save"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent" />
-
-        </LinearLayout>
-
-
+            android:layout_height="wrap_content">
+        </Spinner>
     </LinearLayout>
-
-</android.support.constraint.ConstraintLayout>
+    <Button
+        android:id="@+id/create_list_button"
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/save" />
+</android.support.design.widget.CoordinatorLayout>
