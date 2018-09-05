@@ -3,8 +3,7 @@ package com.example.riley.currencyconverter.ItemListActivity;
 import android.Manifest;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +27,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,14 +43,14 @@ import java.util.Locale;
 
 public class ItemListActivity extends AppCompatActivity {
     private String listName;
-    private SQLiteHelper listHelper;
+    private SQLiteHelper itemHelper;
     private String localCurrency;
     private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
-        setContentView(R.layout.item_list_activity);
+        setContentView(R.layout.activity_item_list);
         if (getIntent().getExtras() != null) {
             listName = getIntent().getExtras().getString(getApplicationContext().getString(R.string.list_name));
             localCurrency = getIntent().getExtras().getString(getApplicationContext().getString(R.string.local_currency));
@@ -61,18 +61,24 @@ public class ItemListActivity extends AppCompatActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
         String[] itemColumns = getResources().getStringArray(R.array.items_columns);
         String[] itemTypes = getResources().getStringArray(R.array.items_types);
-        listHelper = new SQLiteHelper(getApplicationContext(), listName, itemColumns, itemTypes);
+        itemHelper = new SQLiteHelper(getApplicationContext(), listName, itemColumns, itemTypes);
         setupListInfo();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dismissDialogFragments(getFragmentManager());
-                DialogFragment alert = CreateItemDialog.getInstance(localCurrency);
-                alert.show(getFragmentManager(), "create");
-                getFragmentManager().beginTransaction().commit();
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                DialogFragment prev = (DialogFragment) getFragmentManager().findFragmentByTag("dialog");
+                if (prev != null) {
+                    fragmentTransaction.remove(prev);
+                }
+                DialogFragment dialogFragment = CreateItemDialogFragment.getInstance(localCurrency);
+                dialogFragment.show(fragmentTransaction, CreateItemDialogFragment.TAG);
                 getFragmentManager().executePendingTransactions();
-                Button save = alert.getDialog().findViewById(R.id.create_item_button);
-                save.setOnClickListener(new CreateItemListener(alert.getDialog()));
+                ((Toolbar) dialogFragment.getDialog().findViewById(R.id.toolbar)).getMenu()
+                        .getItem(0).setOnMenuItemClickListener(
+                        new CreateItemListener(dialogFragment.getDialog()));
+                Button save = dialogFragment.getDialog().findViewById(R.id.create_item_button);
+                save.setOnClickListener(new CreateItemListener(dialogFragment.getDialog()));
             }
         });
         ItemAdapter adapter = getItemAdapter();
@@ -83,51 +89,36 @@ public class ItemListActivity extends AppCompatActivity {
     }
 
     /**
-     * Clear any DialogFragments from the given FragmentManager and all of the
-     * child fragments
-     */
-    private void dismissDialogFragments(FragmentManager manager) {
-        List<Fragment> fragments = manager.getFragments();
-        if (fragments != null) {
-            for (Fragment fragment : fragments) {
-                if (fragment instanceof DialogFragment) {
-                    ((DialogFragment) fragment).dismissAllowingStateLoss();
-                }
-                FragmentManager childManager = fragment.getChildFragmentManager();
-                if (childManager != null) {
-                    dismissDialogFragments(childManager);
-                }
-            }
-        }
-    }
-
-    /**
      * Initializes the TextViews in the list information header in the activity
      */
     private void setupListInfo() {
         ((TextView) findViewById(R.id.list_item_name)).setText(listName);
         ((TextView) findViewById(R.id.list_item_local_currency)).setText(localCurrency);
 
-
         SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
         String defaultCurrencyCode = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
         double rate = getRate();
         ((TextView) findViewById(R.id.list_item_rate)).setText(
                 getApplication().getString(R.string.rate_format,
-                        String.format(Locale.US, "%.2f", rate),
+                        String.format(Locale.US, "%.2f", rate), localCurrency,
                         defaultCurrencyCode));
 
-        SQLiteDatabase db = listHelper.getReadableDatabase();
+        SQLiteDatabase db = itemHelper.getReadableDatabase();
+
         String table = getResources().getString(R.string.list_table);
         String[] listColumns = getResources().getStringArray(R.array.list_columns);
         Cursor cursor = db.rawQuery("SELECT * FROM " + table + " WHERE " + listColumns[0] + "='" + listName + "'", null);
         cursor.moveToNext();
         Double total = cursor.getDouble(cursor.getColumnIndex(listColumns[3]));
         cursor.close();
+        String defaultCurrency = defaultCurrencyCode;
+        if (defaultCurrency.equals("USD")) {
+            defaultCurrency = "$";
+        }
         ((TextView) findViewById(R.id.list_item_default_total)).setText(
                 getApplication().getString(R.string.total_format,
                         String.format(Locale.US, "%.2f", total / rate),
-                        defaultCurrencyCode));
+                        defaultCurrency));
     }
 
     /**
@@ -151,7 +142,7 @@ public class ItemListActivity extends AppCompatActivity {
      * @return The conversion rate
      */
     private double getRate() {
-        SQLiteDatabase db = listHelper.getReadableDatabase();
+        SQLiteDatabase db = itemHelper.getReadableDatabase();
         String table = getResources().getString(R.string.rates_table);
         String[] ratesColumns = getResources().getStringArray(R.array.rates_columns);
         Cursor cursor = db.rawQuery("SELECT * FROM " + table + " WHERE " + ratesColumns[0] + "='" + localCurrency + "'", null);
@@ -168,7 +159,7 @@ public class ItemListActivity extends AppCompatActivity {
      */
     private List<ItemEntry> getItems() {
         List<ItemEntry> items = new ArrayList<>();
-        Cursor cursor = listHelper.getTable(listName);
+        Cursor cursor = itemHelper.getTable(listName);
         String[] itemColumns = getResources().getStringArray(R.array.items_columns);
 
         while (cursor.moveToNext()) {
@@ -178,7 +169,8 @@ public class ItemListActivity extends AppCompatActivity {
             String dateAdded = cursor.getString(cursor.getColumnIndex(itemColumns[3]));
             double latitude = cursor.getDouble(cursor.getColumnIndex(itemColumns[4]));
             double longitude = cursor.getDouble(cursor.getColumnIndex(itemColumns[5]));
-            ItemEntry entry = new ItemEntry(name, description, localCost, dateAdded, latitude, longitude);
+            String type = cursor.getString(cursor.getColumnIndex(itemColumns[6]));
+            ItemEntry entry = new ItemEntry(name, description, localCost, dateAdded, latitude, longitude, type);
             items.add(entry);
         }
         return items;
@@ -209,13 +201,23 @@ public class ItemListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class CreateItemListener implements View.OnClickListener {
+    private class CreateItemListener implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
         private Dialog dialog;
 
         CreateItemListener(Dialog dialog) { this.dialog = dialog; }
 
         @Override
         public void onClick(View v) {
+            saveInfo();
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            saveInfo();
+            return true;
+        }
+
+        private void saveInfo() {
             String name = ((EditText) dialog.findViewById(R.id.edit_item_name)).getText().toString();
             if (name.length() > 0) {
                 // Have actual item with name
@@ -244,6 +246,7 @@ public class ItemListActivity extends AppCompatActivity {
                         longitude = lastLocation.getLongitude();
                     }
                 }
+                String type = ((Spinner) dialog.findViewById(R.id.spinner_purchase_type)).getSelectedItem().toString();
                 String[] itemColumns = getResources().getStringArray(R.array.items_columns);
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(itemColumns[0], name);
@@ -252,11 +255,13 @@ public class ItemListActivity extends AppCompatActivity {
                 contentValues.put(itemColumns[3], dateCreated);
                 contentValues.put(itemColumns[4], latitude);
                 contentValues.put(itemColumns[5], longitude);
-                listHelper.insertRecord(contentValues);
+                contentValues.put(itemColumns[6], type);
+                itemHelper.insertRecord(contentValues);
                 updateListInfo(addToTotal(cost));
-                ItemEntry entry = new ItemEntry(name, description, cost, dateCreated, latitude, longitude);
+                ItemEntry entry = new ItemEntry(name, description, cost, dateCreated, latitude, longitude, type);
                 ((ItemAdapter) recyclerView.getAdapter()).addEntry(entry);
                 dialog.dismiss();
+                updateModified(dateCreated);
             } else {
                 // Reprompt for information
 
@@ -283,6 +288,18 @@ public class ItemListActivity extends AppCompatActivity {
         total += cost;
         totalHelper.updateRecord(0, listName, 3, Double.toString(total));
         return total;
+    }
+
+    /**
+     * Updates the list table for the most recently modified time
+     * @param modified
+     */
+    private void updateModified(String modified) {
+        String listTable = getResources().getString(R.string.list_table);
+        String[] listColumns = getResources().getStringArray(R.array.list_columns);
+        String[] listTypes = getResources().getStringArray(R.array.list_types);
+        SQLiteHelper modifyHelper = new SQLiteHelper(getApplicationContext(), listTable, listColumns, listTypes);
+        modifyHelper.updateRecord(0, listName, 4, modified);
     }
 
     /**

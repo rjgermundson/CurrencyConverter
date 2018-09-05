@@ -1,32 +1,32 @@
-package com.example.riley.currencyconverter.Settings;
+package com.example.riley.currencyconverter.FullListInfoActivity;
 
-import android.os.AsyncTask;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.riley.currencyconverter.MainActivity.GetLocalCurrency;
 import com.example.riley.currencyconverter.R;
-import com.example.riley.currencyconverter.UpdateRates.UpdateTask;
+import com.example.riley.currencyconverter.Settings.SettingsActivity;
 
-public class SettingsActivity extends AppCompatActivity {
+public class FullListInfoActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
 
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_full_list_info);
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_item_list, menu);
         return true;
     }
 
@@ -38,21 +38,12 @@ public class SettingsActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-
+            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.action_test) {
-            System.err.println(GetLocalCurrency.getLocalCurrency(this));
+            Toast.makeText(getApplicationContext(), GetLocalCurrency.getLocalCurrency(this), Toast.LENGTH_LONG).show();
             return true;
-        } else if (id == R.id.action_update_rates) {
-            update();
         }
-
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * Updates the rates table, or alerts user of Internet difficulties
-     */
-    private void update() {
-        new UpdateTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }

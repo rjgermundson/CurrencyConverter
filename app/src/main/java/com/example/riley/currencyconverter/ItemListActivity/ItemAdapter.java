@@ -11,11 +11,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.riley.currencyconverter.LocalStorage.SQLiteHelper;
 import com.example.riley.currencyconverter.R;
 
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -47,7 +49,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     @Override
     public ItemAdapter.ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.item_list_container, parent, false);
+        View view = inflater.inflate(R.layout.activity_item_list_container, parent, false);
         return new ItemAdapter.ItemViewHolder(view);
     }
 
@@ -84,6 +86,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                     iter.remove();
                                     notifyItemRemoved(index);
                                     sqLiteHelper.removeRecord(entry.getName());
+                                    updateModified(Calendar.getInstance().getTime().toString());
                                 }
                                 index++;
                             }
@@ -100,16 +103,51 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     }
 
     private void setTextViews(ItemAdapter.ItemViewHolder holder, ItemEntry entry) {
+        String localCurrency = localCurrencyCode;
+        String defaultCurrency = defaultCurrencyCode;
+        if (localCurrency.equals("USD")) {
+            localCurrency = "$";
+        }
+        if (defaultCurrency.equals("USD")) {
+            defaultCurrency = "$";
+        }
         holder.name.setText(entry.getName());
         holder.description.setText(entry.getDescription());
         holder.localCost.setText(context.getResources().getString(
                 R.string.total_format,
                 String.format(Locale.US, "%.2f", entry.getCost()),
-                localCurrencyCode));
+                localCurrency));
         holder.defaultCost.setText(context.getResources().getString(R.string.total_format,
                 String.format(Locale.US, "%.2f", entry.getCost() / rate),
-                defaultCurrencyCode));
+                defaultCurrency));
         holder.dateAdded.setText(entry.getCreated());
+
+        String type = entry.getType();
+        ImageView typeImage = holder.typeImage;
+        System.err.println(type);
+        System.err.println(type.equals("Entertainment"));
+        switch (type) {
+            case "Entertainment":
+                typeImage.setImageResource(R.drawable.ic_local_activity_black_36dp);
+                break;
+            case "Food":
+                typeImage.setImageResource(R.drawable.ic_local_hospital_black_36dp);
+                break;
+            case "Gift":
+                typeImage.setImageResource(R.drawable.ic_card_giftcard_black_36dp);
+                break;
+            case "Health":
+                typeImage.setImageResource(R.drawable.ic_local_hospital_black_36dp);
+                break;
+            case "Souvenir":
+                typeImage.setImageResource(R.drawable.ic_beach_access_black_36dp);
+                break;
+            case "Transportation":
+                typeImage.setImageResource(R.drawable.ic_directions_bus_black_36dp);
+                break;
+            case "Other":
+                typeImage.setImageResource(R.drawable.ic_shopping_cart_black_36dp);
+        }
     }
 
 
@@ -127,13 +165,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
-
         View view;
         TextView name;
         TextView description;
         TextView localCost;
         TextView defaultCost;
         TextView dateAdded;
+        ImageView typeImage;
 
         private ItemViewHolder(View itemView) {
             super(itemView);
@@ -143,6 +181,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             this.localCost = itemView.findViewById(R.id.item_local_cost);
             this.defaultCost = itemView.findViewById(R.id.item_default_cost);
             this.dateAdded = itemView.findViewById(R.id.item_date_added);
+            this.typeImage = itemView.findViewById(R.id.item_type_image);
         }
     }
 
@@ -165,6 +204,18 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         total += cost;
         totalHelper.updateRecord(0, table, 3, Double.toString(total));
         return total;
+    }
+
+    /**
+     * Updates the list table for the most recently modified time
+     * @param modified
+     */
+    private void updateModified(String modified) {
+        String listTable = context.getResources().getString(R.string.list_table);
+        String[] listColumns = context.getResources().getStringArray(R.array.list_columns);
+        String[] listTypes = context.getResources().getStringArray(R.array.list_types);
+        SQLiteHelper modifyHelper = new SQLiteHelper(context, listTable, listColumns, listTypes);
+        modifyHelper.updateRecord(0, table, 4, modified);
     }
 
     /**

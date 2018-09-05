@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -64,13 +65,19 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dismissDialogFragments(getFragmentManager());
-                DialogFragment alert = new CreateListDialog();
-                alert.show(getFragmentManager(), "dialog");
-                getFragmentManager().beginTransaction().commit();
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                DialogFragment prev = (DialogFragment) getFragmentManager().findFragmentByTag(CreateListDialogFragment.TAG);
+                if (prev != null) {
+                    fragmentTransaction.remove(prev);
+                }
+                DialogFragment dialogFragment = new CreateListDialogFragment();
+                dialogFragment.show(fragmentTransaction, CreateListDialogFragment.TAG);
                 getFragmentManager().executePendingTransactions();
-                Button save = alert.getDialog().findViewById(R.id.create_list_button);
-                save.setOnClickListener(new CreateListListener(alert.getDialog()));
+                ((Toolbar) dialogFragment.getDialog().findViewById(R.id.toolbar)).getMenu()
+                        .getItem(0).setOnMenuItemClickListener(
+                        new CreateListListener(dialogFragment.getDialog()));
+                Button save = dialogFragment.getDialog().findViewById(R.id.create_list_button);
+                save.setOnClickListener(new CreateListListener(dialogFragment.getDialog()));
             }
         });
 
@@ -192,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
      * This class serves as the save listener that will create a new list
      * when the user specifies a list name
      */
-    private class CreateListListener implements View.OnClickListener {
+    private class CreateListListener implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
         Dialog dialog;
 
         /**
@@ -206,6 +213,34 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View view) {
+            saveInfo();
+        }
+
+        /**
+         * Searches the list table for whether a list of the given name exists
+         */
+        private boolean checkListExists(String name) {
+            if (name == null) {
+                return false;
+            }
+            String listTable = getApplication().getString(R.string.list_table);
+            String[] listColumns = getApplication().getResources().getStringArray(R.array.list_columns);
+            Cursor cursor = listHelper.getTable(listTable);
+            while (cursor.moveToNext()) {
+                if (name.equals(cursor.getString(cursor.getColumnIndex(listColumns[0])))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            saveInfo();
+            return true;
+        }
+
+        private void saveInfo() {
             final EditText nameText = dialog.findViewById(R.id.edit_list_name);
             EditText descriptionText = dialog.findViewById(R.id.edit_description);
             String[] listColumns = getApplication().getResources().getStringArray(R.array.list_columns);
@@ -247,24 +282,6 @@ public class MainActivity extends AppCompatActivity {
                 ((ListAdapter) recyclerView.getAdapter()).addEntry(new ListEntry(name, description, localCurrency, defaultCurrency,0, modified, modified));
                 dialog.dismiss();
             }
-        }
-
-        /**
-         * Searches the list table for whether a list of the given name exists
-         */
-        private boolean checkListExists(String name) {
-            if (name == null) {
-                return false;
-            }
-            String listTable = getApplication().getString(R.string.list_table);
-            String[] listColumns = getApplication().getResources().getStringArray(R.array.list_columns);
-            Cursor cursor = listHelper.getTable(listTable);
-            while (cursor.moveToNext()) {
-                if (name.equals(cursor.getString(cursor.getColumnIndex(listColumns[0])))) {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 }

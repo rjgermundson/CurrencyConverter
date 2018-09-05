@@ -1,12 +1,13 @@
 package com.example.riley.currencyconverter.MainActivity;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import com.example.riley.currencyconverter.R;
@@ -18,20 +19,34 @@ import java.util.List;
 /**
  * Constructs a dialog for list creation
  */
-public class CreateListDialog extends DialogFragment {
+public class CreateListDialogFragment extends DialogFragment {
+    public static final String TAG = "LIST_DIALOG";
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.activity_main_create_list_dialog, null);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.FullDialog);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        getDialog().getWindow().setWindowAnimations(R.style.FullDialog);
+
+        View view = inflater.inflate(R.layout.activity_main_create_list_dialog, container, false);
+
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        setButtonClose((ImageButton) toolbar.findViewById(R.id.toolbar_close));
+        toolbar.inflateMenu(R.menu.menu_full_list_info);
+
+
         Spinner spinner = view.findViewById(R.id.create_list_spinner_currencies);
         String[] currencies = getResources().getStringArray(R.array.currency_names_full);
         reorderCurrencies(currencies);
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getActivity(), R.layout.currency_spinner, currencies);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_currency, currencies);
         spinner.setAdapter(spinnerAdapter);
-        builder.setView(view);
-        return builder.create();
+
+        return view;
     }
 
     /**
@@ -52,6 +67,7 @@ public class CreateListDialog extends DialogFragment {
         String localCurrency = GetLocalCurrency.getLocalCurrency(getActivity());
         for (int i = 0; i < currencies.length; i++) {
             if (currencies[i].equals(localCurrency)) {
+                System.err.println(localCurrency);
                 // Have index of full name that needs to be swapped to index 0
                 // and everything else moved over until
                 for (int j = i; j > 0; j--) {
@@ -61,5 +77,18 @@ public class CreateListDialog extends DialogFragment {
                 break;
             }
         }
+    }
+
+    /**
+     * Sets the given button to close this dialog
+     * @param button Button to set
+     */
+    private void setButtonClose(ImageButton button) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDialog().dismiss();
+            }
+        });
     }
 }
