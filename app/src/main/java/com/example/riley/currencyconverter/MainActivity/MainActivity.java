@@ -3,8 +3,6 @@ package com.example.riley.currencyconverter.MainActivity;
 import android.Manifest;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
@@ -37,6 +35,7 @@ import com.example.riley.currencyconverter.UpdateRates.UpdateTask;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -66,12 +65,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                DialogFragment prev = (DialogFragment) getFragmentManager().findFragmentByTag(CreateListDialogFragment.TAG);
+                DialogFragment prev = (DialogFragment) getFragmentManager().findFragmentByTag(CreateListDialogFragment.CREATE_TAG);
                 if (prev != null) {
                     fragmentTransaction.remove(prev);
                 }
                 DialogFragment dialogFragment = new CreateListDialogFragment();
-                dialogFragment.show(fragmentTransaction, CreateListDialogFragment.TAG);
+                dialogFragment.show(fragmentTransaction, CreateListDialogFragment.CREATE_TAG);
                 getFragmentManager().executePendingTransactions();
                 ((Toolbar) dialogFragment.getDialog().findViewById(R.id.toolbar)).getMenu()
                         .getItem(0).setOnMenuItemClickListener(
@@ -110,25 +109,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(new ListAdapter(this, getLists()));
     }
 
-    /**
-     * Clear any DialogFragments from the given FragmentManager and all of the
-     * child fragments
-     */
-    private void dismissDialogFragments(FragmentManager manager) {
-        List<Fragment> fragments = manager.getFragments();
-        if (fragments != null) {
-            for (Fragment fragment : fragments) {
-                if (fragment instanceof DialogFragment) {
-                    ((DialogFragment) fragment).dismissAllowingStateLoss();
-                }
-                FragmentManager childManager = fragment.getChildFragmentManager();
-                if (childManager != null) {
-                    dismissDialogFragments(childManager);
-                }
-            }
-        }
-    }
-
     @Override
     protected void onPostResume() {
         super.onPostResume();
@@ -154,7 +134,21 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(intent);
         } else if (id == R.id.action_test) {
-            System.err.println(GetLocalCurrency.getLocalCurrency(this));
+            String[] columns = getResources().getStringArray(R.array.list_columns);
+            Cursor cursor = listHelper.getTable("LIST_TABLE");
+
+            String[] itemColumns = getResources().getStringArray(R.array.items_columns);
+            String[] itemTypes = getResources().getStringArray(R.array.items_types);
+            while (cursor.moveToNext()) {
+                String listName = cursor.getString(cursor.getColumnIndex(columns[0]));
+                System.err.println(listName);
+                SQLiteHelper helper = new SQLiteHelper(this, listName, itemColumns, itemTypes);
+                Cursor innerCursor = helper.getTable(listName);
+                System.err.println("\t" + innerCursor.getCount());
+                while (innerCursor.moveToNext()) {
+                    System.err.println("\t" + innerCursor.getString(innerCursor.getColumnIndex(itemColumns[0])));
+                }
+            }
             return true;
         } else if (id == R.id.action_update_rates) {
             update();
@@ -198,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * This class serves as the save listener that will create a new list
      * when the user specifies a list name
+     * The listener is responsible for adding new items to the RecyclerView
      */
     private class CreateListListener implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
         Dialog dialog;
@@ -216,10 +211,63 @@ public class MainActivity extends AppCompatActivity {
             saveInfo();
         }
 
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            saveInfo();
+            return true;
+        }
+
+        private void saveInfo() {
+            final EditText nameText = dialog.findViewById(R.id.edit_list_name);
+            EditText descriptionText = dialog.findViewById(R.id.edit_list_description);
+            String[] listColumns = getApplication().getResources().getStringArray(R.array.list_columns);
+            nameText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    nameText.setHint("");
+                }
+            });
+
+            // Get table name and possible description from text fields
+            String name = nameText.getText().toString();
+            String description = descriptionText.getText().toString();
+            if (name.isEmpty() || listExists(name)) {
+                // Need to reprompt for information
+                nameText.setText("");
+                nameText.setHint("Must enter a new list name");
+                nameText.setHintTextColor(Color.RED);
+            } else {
+                SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
+                String defaultCurrency = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
+                String modified = Calendar.getInstance().getTime().toString();
+                ContentValues values = new ContentValues();
+                values.put(listColumns[0], name);
+                values.put(listColumns[1], description);
+                String localCurrency;
+                Spinner spinner = dialog.findViewById(R.id.spinner_create_list_currencies);
+                localCurrency = spinner.getSelectedItem().toString();
+                localCurrency = CurrencyTypeConverter.fullToAbbrev(getApplicationContext(), localCurrency);
+
+                // Construct table for this list's items
+                SQLiteHelper itemHelper = new SQLiteHelper(getApplication(), name, getApplication().getResources().getStringArray(R.array.items_columns),
+                        getApplication().getResources().getStringArray(R.array.items_columns));
+
+                values.put(listColumns[2], localCurrency);  // Need to get local currency
+                values.put(listColumns[3], 0);  // Total
+                values.put(listColumns[4], modified);
+                values.put(listColumns[5], modified);
+                listHelper.insertRecord(values);  // Insert new list into list table
+                ((ListAdapter) recyclerView.getAdapter()).addEntry(new ListEntry(name, description,
+                        localCurrency, defaultCurrency,0,
+                        modified, modified));
+                dialog.dismiss();
+            }
+        }
+
         /**
          * Searches the list table for whether a list of the given name exists
          */
-        private boolean checkListExists(String name) {
+        private boolean listExists(String name) {
             if (name == null) {
                 return false;
             }
@@ -232,56 +280,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             return false;
-        }
-
-        @Override
-        public boolean onMenuItemClick(MenuItem item) {
-            saveInfo();
-            return true;
-        }
-
-        private void saveInfo() {
-            final EditText nameText = dialog.findViewById(R.id.edit_list_name);
-            EditText descriptionText = dialog.findViewById(R.id.edit_description);
-            String[] listColumns = getApplication().getResources().getStringArray(R.array.list_columns);
-            nameText.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    nameText.setHint("");
-                }
-            });
-
-            // Get table name and possible description from text fields
-            String name = nameText.getText().toString();
-            String description = descriptionText.getText().toString();
-            if (name.isEmpty() || checkListExists(name)) {
-                // No name to create a table for
-                nameText.setText("");
-                nameText.setHint("Must enter a new list name");
-                nameText.setHintTextColor(Color.RED);
-            } else {
-                SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
-                String defaultCurrency = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
-                String modified = Calendar.getInstance().getTime().toString();
-                ContentValues values = new ContentValues();
-                values.put(listColumns[0], name);
-                values.put(listColumns[1], description);
-                String localCurrency;
-                Spinner spinner = dialog.findViewById(R.id.create_list_spinner_currencies);
-                localCurrency = spinner.getSelectedItem().toString();
-                localCurrency = CurrencyTypeConverter.fullToAbbrev(getApplicationContext(), localCurrency);
-
-                // Construct table for this list's items
-                SQLiteHelper itemHelper = new SQLiteHelper(getApplication(), name, getApplication().getResources().getStringArray(R.array.items_columns),
-                        getApplication().getResources().getStringArray(R.array.items_columns));
-                values.put(listColumns[2], localCurrency);  // Need to get local currency
-                values.put(listColumns[3], 0);  // Total
-                values.put(listColumns[4], modified);
-                values.put(listColumns[5], modified);
-                listHelper.insertRecord(values);  // Insert new list into list table
-                ((ListAdapter) recyclerView.getAdapter()).addEntry(new ListEntry(name, description, localCurrency, defaultCurrency,0, modified, modified));
-                dialog.dismiss();
-            }
         }
     }
 }

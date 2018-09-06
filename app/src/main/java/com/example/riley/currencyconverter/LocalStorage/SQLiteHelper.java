@@ -78,11 +78,12 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             throw new IllegalArgumentException();
         }
         SQLiteDatabase database = getReadableDatabase();
-        database.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_NONE);
+        System.err.println(database.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_NONE));
     }
 
     /**
-     * Update a record in the database based on the first column's value
+     * Update a record in the database based on the given identifier column and value
+     * with the given value for the corresponding column
      *
      * @requires identifier and value are formatted properly
      * @param identifierColumn Column which will be used to identify which rows to update
@@ -93,24 +94,31 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      *              || column >= columns.length
      */
     public void updateRecord(int identifierColumn, String identifier, int column, String value) {
-        if (identifierColumn >= columns.length || column >= columns.length) {
-            throw new IllegalArgumentException();
-        }
-        SQLiteDatabase db = getReadableDatabase();
-        String columnName = columns[column];
-        ContentValues content = new ContentValues();
-        content.put(columnName, value);
-
-        db.update(table, content, columns[identifierColumn] + " = ?", new String[]{identifier});
+//        if (identifierColumn >= columns.length || column >= columns.length) {
+//            throw new IllegalArgumentException();
+//        }
+//        SQLiteDatabase db = getReadableDatabase();
+//        String columnName = columns[column];
+//        ContentValues content = new ContentValues();
+//        content.put(columnName, value);
+//
+//        db.update(table, content, columns[identifierColumn] + " = ?", new String[]{identifier});
     }
 
-    // Helper method to compile columns and values to be inserted
-    private ContentValues constructContent(String[] values) {
-        ContentValues content = new ContentValues();
-        for (int i = 0; i < columns.length; i++) {
-            content.put(columns[i], DatabaseUtils.sqlEscapeString(values[i]));
-        }
-        return content;
+    /**
+     * Update a record in the database based on the given identifierColumn value
+     *
+     * @requires identifier and values are formatted properly
+     * @param identifierColumn Column which will be used to identify which rows to update
+     * @param identifier Value for which rows will be checked for whether they match
+     * @param values Values to replace found columns values
+     */
+    public void updateRecord(int identifierColumn, String identifier, ContentValues values) {
+//        if (identifierColumn >= columns.length || values.size() >= columns.length) {
+//            throw new IllegalArgumentException();
+//        }
+//        SQLiteDatabase db = getReadableDatabase();
+//        db.update(table, values, columns[identifierColumn] + " = ?", new String[]{identifier});
     }
 
     /**

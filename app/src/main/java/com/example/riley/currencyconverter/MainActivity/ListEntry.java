@@ -1,9 +1,6 @@
 package com.example.riley.currencyconverter.MainActivity;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-public class ListEntry implements Parcelable {
+public class ListEntry {
 
     private String name;
     private String description;
@@ -22,19 +19,6 @@ public class ListEntry implements Parcelable {
         this.total = total;
         this.modified = modified;
         this.created = created;
-    }
-
-    public ListEntry(Parcel in) {
-        String[] data = new String[6];
-        in.readStringArray(data);
-        double total = in.readDouble();
-        this.name = data[0];
-        this.description = data[1];
-        this.localCurrency = data[2];
-        this.defaultCurrency = data[3];
-        this.total = total;
-        this.modified = data[4];
-        this.created = data[5];
     }
 
     public String getName() {
@@ -65,26 +49,23 @@ public class ListEntry implements Parcelable {
         return created;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[] {name, description, localCurrency,
-                                            defaultCurrency, modified,
-                                            created});
-        dest.writeDouble(total);
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public ListEntry createFromParcel(Parcel in) {
-            return new ListEntry(in);
-        }
+    public void setLocalCurrency(String localCurrency) {
+        this.localCurrency = localCurrency;
+    }
 
-        public ListEntry[] newArray(int size) {
-            return new ListEntry[size];
-        }
-    };
+    public void setTotal(double total) {
+        this.total = total;
+    }
+
+    public void setModified(String modified) {
+        this.modified = modified;
+    }
 }

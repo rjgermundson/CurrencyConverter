@@ -20,7 +20,8 @@ import java.util.List;
  * Constructs a dialog for list creation
  */
 public class CreateListDialogFragment extends DialogFragment {
-    public static final String TAG = "LIST_DIALOG";
+    public static final String CREATE_TAG = "CREATE_LIST_DIALOG";
+    public static final String UPDATE_TAG = "UPDATE_LIST_DIALOG";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,7 @@ public class CreateListDialogFragment extends DialogFragment {
         toolbar.inflateMenu(R.menu.menu_full_list_info);
 
 
-        Spinner spinner = view.findViewById(R.id.create_list_spinner_currencies);
+        Spinner spinner = view.findViewById(R.id.spinner_create_list_currencies);
         String[] currencies = getResources().getStringArray(R.array.currency_names_full);
         reorderCurrencies(currencies);
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_currency, currencies);

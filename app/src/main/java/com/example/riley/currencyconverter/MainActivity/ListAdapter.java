@@ -1,49 +1,62 @@
 package com.example.riley.currencyconverter.MainActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.FragmentTransaction;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.riley.currencyconverter.ItemListActivity.ItemListActivity;
 import com.example.riley.currencyconverter.LocalStorage.SQLiteHelper;
 import com.example.riley.currencyconverter.R;
 
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * This class handles the recyclerview functionality for the list in MainActivity
+ * This class handles the RecyclerView functionality for the list in MainActivity
+ * It is responsible for defining the behavior of the list items within a RecyclerView
  */
 class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
     private static final long ANIMATION_DURATION = 200;
     private static final int DESCRIPTION_PADDING = 8;
-    private Context context;
+    private Activity activity;
     private List<ListEntry> entries;  // Entries in list
     private SQLiteHelper sqLiteHelper;
 
-    ListAdapter(Context context, List<ListEntry> entries) {
-        this.context = context;
+    ListAdapter(Activity activity, List<ListEntry> entries) {
+        this.activity = activity;
         this.entries = entries;
-        String table = context.getString(R.string.list_table);
-        String[] columns = context.getResources().getStringArray(R.array.list_columns);
-        String[] types = context.getResources().getStringArray(R.array.list_types);
-        this.sqLiteHelper = new SQLiteHelper(context, table, columns, types);
+        String table = activity.getString(R.string.list_table);
+        String[] columns = activity.getResources().getStringArray(R.array.list_columns);
+        String[] types = activity.getResources().getStringArray(R.array.list_types);
+        this.sqLiteHelper = new SQLiteHelper(activity, table, columns, types);
     }
 
     @NonNull
@@ -68,13 +81,31 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
         holder.view.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
                 final CharSequence[] options = {"Update", "Delete"};
                 alertBuilder.setItems(options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int choice) {
                         if (choice == 0) {  // Update
-                            System.err.println("UPDATE");
+//                            FragmentTransaction fragmentTransaction = activity.getFragmentManager().beginTransaction();
+//                            DialogFragment prev = (DialogFragment) activity.getFragmentManager().findFragmentByTag(CreateListDialogFragment.UPDATE_TAG);
+//                            if (prev != null) {
+//                                fragmentTransaction.remove(prev);
+//                            }
+//                            DialogFragment fragment = new CreateListDialogFragment();
+//
+//                            fragment.show(fragmentTransaction, CreateListDialogFragment.UPDATE_TAG);
+//                            activity.getFragmentManager().executePendingTransactions();
+//
+//                            Dialog fragmentDialog = fragment.getDialog();
+//                            ((Toolbar) fragmentDialog.findViewById(R.id.toolbar)).getMenu()
+//                                    .getItem(0).setOnMenuItemClickListener(
+//                                    new UpdateListener(fragmentDialog, entry));
+//                            ((EditText) fragmentDialog.findViewById(R.id.edit_list_name)).setText(entry.getName());
+//                            ((EditText) fragmentDialog.findViewById(R.id.edit_list_description)).setText(entry.getDescription());
+//
+//                            Button save = fragmentDialog.findViewById(R.id.create_list_button);
+//                            save.setOnClickListener(new UpdateListener(fragmentDialog, entry));
                         } else if (choice == 1) {  // Delete
                             Iterator<ListEntry> iter = entries.iterator();
                             int index = 0;
@@ -105,14 +136,7 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
      */
     private void setViews(ListViewHolder holder, ListEntry entry) {
         // Look up rate for the given entry from the stored rates
-        SQLiteDatabase db = sqLiteHelper.getReadableDatabase();
-        String table = context.getResources().getString(R.string.rates_table);
-        String[] ratesColumns = context.getResources().getStringArray(R.array.rates_columns);
-        Cursor cursor = db.rawQuery("SELECT * FROM " + table + " WHERE " + ratesColumns[0] + "='" + entry.getLocalCurrency() + "'", null);
-        cursor.moveToNext();
-        Double rate = cursor.getDouble(cursor.getColumnIndex(ratesColumns[1]));
-        cursor.close();
-
+        double rate = getRate(entry.getLocalCurrency());
         holder.name.setText(entry.getName());
         holder.description.setText(entry.getDescription());
 
@@ -125,14 +149,14 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
         if (entry.getDefaultCurrency().equals("USD")) {
             defaultCurrency = "$";
         }
-        holder.total.setText(context.getResources().getString(
+        holder.total.setText(activity.getResources().getString(
                 R.string.total_format,
                 String.format(Locale.US, "%.2f", entry.getTotal() / rate),
                 defaultCurrency));
         String modified = formatDate(entry.getModified());
         String created = formatDate(entry.getCreated());
-        holder.timeStamps.setText(context.getResources().getString(R.string.modified_created, modified, created));
-        holder.rate.setText(context.getResources().getString(
+        holder.timeStamps.setText(activity.getResources().getString(R.string.modified_created, modified, created));
+        holder.rate.setText(activity.getResources().getString(
                 R.string.rate_format,
                 String.format(Locale.US, "%.2f", rate), entry.getLocalCurrency(),
                 entry.getDefaultCurrency()));
@@ -148,7 +172,7 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
         String[] tokens = date.split(" ");
         String monthDay = tokens[1] + " " + tokens[2];
         String year = tokens[5];
-        return context.getResources().getString(R.string.date, monthDay, year);
+        return activity.getResources().getString(R.string.date, monthDay, year);
     }
 
     @Override
@@ -247,10 +271,11 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
 
         private void singleClick() {
                 String list = holder.name.getText().toString();
-                Intent intent = new Intent(context.getApplicationContext(), ItemListActivity.class);
-                intent.putExtra(context.getApplicationContext().getString(R.string.list_name), list);
-                intent.putExtra(context.getApplicationContext().getString(R.string.local_currency),localCurrency);
-                context.startActivity(intent);
+                Intent intent = new Intent(activity.getApplicationContext(), ItemListActivity.class);
+                System.err.println(list);
+                intent.putExtra(activity.getApplicationContext().getString(R.string.list_name), list);
+                intent.putExtra(activity.getApplicationContext().getString(R.string.local_currency), localCurrency);
+                activity.startActivity(intent);
         }
 
         private void doubleClick() {
@@ -280,6 +305,92 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
     }
 
     /**
+     * This class defines the behavior of updating a list item
+     */
+    private class UpdateListener implements Button.OnClickListener, MenuItem.OnMenuItemClickListener{
+        private Dialog dialog;
+        private ListEntry entry;
+
+        private UpdateListener(Dialog dialog, ListEntry entry) {
+            this.dialog = dialog;
+            this.entry = entry;
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            updateInfo();
+            return true;
+        }
+
+        @Override
+        public void onClick(View v) {
+            updateInfo();
+        }
+
+        private void updateInfo() {
+            EditText nameText = dialog.findViewById(R.id.edit_list_name);
+            String name = nameText.getText().toString();
+            if (name.isEmpty() || (listExists(name) && !name.equals(entry.getName()))) {
+                // Reprompt for information
+                nameText.setText("");
+                nameText.setHint("Must enter a new list name");
+                nameText.setHintTextColor(Color.RED);
+            } else {
+                // Can update information
+                String modified = Calendar.getInstance().getTime().toString();
+                String description = ((EditText) dialog.findViewById(R.id.edit_list_description)).getText().toString();
+
+                String oldCurrency = entry.getLocalCurrency();
+                String localCurrency = ((Spinner) dialog.findViewById(R.id.spinner_create_list_currencies)).getSelectedItem().toString();
+                localCurrency = CurrencyTypeConverter.fullToAbbrev(activity, localCurrency);
+                double total = entry.getTotal();
+                if (!localCurrency.equals(oldCurrency)) {
+                    // New currency
+                    // Update: Rate, Total, Item Prices, ListEntry
+                    double rate = getRate(localCurrency);  // Rate from new currency to default
+                    double crossRate = getRate(oldCurrency) * (1 / rate);
+                    total = entry.getTotal() * crossRate;
+                }
+
+                String[] listColumns = activity.getResources().getStringArray(R.array.list_columns);
+                ContentValues values = new ContentValues();
+                values.put(listColumns[0], name);
+                values.put(listColumns[1], description);
+                values.put(listColumns[2], localCurrency);
+                values.put(listColumns[3], total);
+                values.put(listColumns[4], modified);
+                sqLiteHelper.updateRecord(0, entry.getName(), values);
+
+                entry.setName(name);
+                entry.setDescription(description);
+                entry.setLocalCurrency(localCurrency);
+                entry.setTotal(total);
+                entry.setModified(modified);
+                notifyDataSetChanged();
+                dialog.dismiss();
+            }
+        }
+
+        /**
+         * Searches the list table for whether a list of the given name exists
+         */
+        private boolean listExists(String name) {
+            if (name == null) {
+                return false;
+            }
+            String listTable = activity.getString(R.string.list_table);
+            String[] listColumns = activity.getResources().getStringArray(R.array.list_columns);
+            Cursor cursor = sqLiteHelper.getTable(listTable);
+            while (cursor.moveToNext()) {
+                if (name.equals(cursor.getString(cursor.getColumnIndex(listColumns[0])))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    /**
      * This handles the animation used when revealing an item description
      */
     private class RevealAnimation extends Animation {
@@ -304,6 +415,23 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
         public boolean willChangeBounds() {
             return true;
         }
+    }
+
+
+    /**
+     * Gets the currency code rate for the given currency from currency to the default currency
+     * @param currency Currency code whose rate to return
+     * @return The rate for the given currency to the default currency
+     */
+    private double getRate(String currency) {
+        SQLiteDatabase db = sqLiteHelper.getReadableDatabase();
+        String table = activity.getResources().getString(R.string.rates_table);
+        String[] ratesColumns = activity.getResources().getStringArray(R.array.rates_columns);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + table + " WHERE " + ratesColumns[0] + "='" + currency + "'", null);
+        cursor.moveToNext();
+        double rate = cursor.getDouble(cursor.getColumnIndex(ratesColumns[1]));
+        cursor.close();
+        return rate;
     }
 }
 

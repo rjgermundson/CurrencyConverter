@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class ItemListActivity extends AppCompatActivity {
     private String listName;
@@ -170,7 +171,8 @@ public class ItemListActivity extends AppCompatActivity {
             double latitude = cursor.getDouble(cursor.getColumnIndex(itemColumns[4]));
             double longitude = cursor.getDouble(cursor.getColumnIndex(itemColumns[5]));
             String type = cursor.getString(cursor.getColumnIndex(itemColumns[6]));
-            ItemEntry entry = new ItemEntry(name, description, localCost, dateAdded, latitude, longitude, type);
+            String key = cursor.getString(cursor.getColumnIndex(itemColumns[7]));
+            ItemEntry entry = new ItemEntry(name, description, localCost, dateAdded, latitude, longitude, type, key);
             items.add(entry);
         }
         return items;
@@ -219,7 +221,7 @@ public class ItemListActivity extends AppCompatActivity {
 
         private void saveInfo() {
             String name = ((EditText) dialog.findViewById(R.id.edit_item_name)).getText().toString();
-            if (name.length() > 0) {
+            if (!name.isEmpty()) {
                 // Have actual item with name
                 String description = ((EditText) dialog.findViewById(R.id.edit_item_description)).getText().toString();
                 String dateCreated = Calendar.getInstance().getTime().toString();
@@ -256,9 +258,13 @@ public class ItemListActivity extends AppCompatActivity {
                 contentValues.put(itemColumns[4], latitude);
                 contentValues.put(itemColumns[5], longitude);
                 contentValues.put(itemColumns[6], type);
+
+                String key = UUID.randomUUID().toString();
+                contentValues.put(itemColumns[7], key);
+
                 itemHelper.insertRecord(contentValues);
                 updateListInfo(addToTotal(cost));
-                ItemEntry entry = new ItemEntry(name, description, cost, dateCreated, latitude, longitude, type);
+                ItemEntry entry = new ItemEntry(name, description, cost, dateCreated, latitude, longitude, type, key);
                 ((ItemAdapter) recyclerView.getAdapter()).addEntry(entry);
                 dialog.dismiss();
                 updateModified(dateCreated);

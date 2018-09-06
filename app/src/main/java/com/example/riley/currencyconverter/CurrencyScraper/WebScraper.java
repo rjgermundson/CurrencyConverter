@@ -38,8 +38,6 @@ public class WebScraper extends AsyncTask<String, Void, Hashtable<String, Double
         return getCurrencyTable();
     }
 
-
-
     /**
      * Connect to and parse the website for an updated currency
      * table

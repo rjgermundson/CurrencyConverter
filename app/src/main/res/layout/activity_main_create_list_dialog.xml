@@ -71,14 +71,14 @@
             android:textSize="18sp" />
 
         <EditText
-            android:id="@+id/edit_description"
+            android:id="@+id/edit_list_description"
             android:minHeight="52dp"
             android:inputType="textCapSentences"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <Spinner
-            android:id="@+id/create_list_spinner_currencies"
+            android:id="@+id/spinner_create_list_currencies"
             android:layout_marginTop="32dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

@@ -40,9 +40,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         this.defaultCurrencyCode = defaultCurrencyCode;
         this.rate = rate;
         this.listInfo = listInfo;
+        System.err.println(table);
         String[] columns = context.getResources().getStringArray(R.array.items_columns);
         String[] types = context.getResources().getStringArray(R.array.items_types);
         this.sqLiteHelper = new SQLiteHelper(context, table, columns, types);
+        System.err.println(sqLiteHelper.getTable(table).getCount());
     }
 
     @NonNull
@@ -124,8 +126,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
         String type = entry.getType();
         ImageView typeImage = holder.typeImage;
-        System.err.println(type);
-        System.err.println(type.equals("Entertainment"));
         switch (type) {
             case "Entertainment":
                 typeImage.setImageResource(R.drawable.ic_local_activity_black_36dp);
@@ -211,11 +211,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
      * @param modified
      */
     private void updateModified(String modified) {
-        String listTable = context.getResources().getString(R.string.list_table);
-        String[] listColumns = context.getResources().getStringArray(R.array.list_columns);
-        String[] listTypes = context.getResources().getStringArray(R.array.list_types);
-        SQLiteHelper modifyHelper = new SQLiteHelper(context, listTable, listColumns, listTypes);
-        modifyHelper.updateRecord(0, table, 4, modified);
+//        String listTable = context.getResources().getString(R.string.list_table);
+//        String[] listColumns = context.getResources().getStringArray(R.array.list_columns);
+//        String[] listTypes = context.getResources().getStringArray(R.array.list_types);
+//        SQLiteHelper modifyHelper = new SQLiteHelper(context, listTable, listColumns, listTypes);
+//        modifyHelper.updateRecord(0, table, 4, modified);
     }
 
     /**

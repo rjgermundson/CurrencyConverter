@@ -8,9 +8,10 @@ public class ItemEntry {
     private double latitude;
     private double longitude;
     private String type;
+    private String key;
 
     public ItemEntry(String name, String description, double cost, String created, double latitude,
-                     double longitude, String type) {
+                     double longitude, String type, String key) {
         this.name = name;
         this.description = description;
         this.cost = cost;
@@ -18,6 +19,7 @@ public class ItemEntry {
         this.latitude = latitude;
         this.longitude = longitude;
         this.type = type;
+        this.key = key;
     }
 
     public String getName() {
@@ -45,4 +47,6 @@ public class ItemEntry {
     }
 
     public String getType() { return type; }
+
+    public String getKey() { return key; }
 }
