@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import com.example.riley.currencyconverter.CurrencyScraper.WebScraper;
 import com.example.riley.currencyconverter.LoadingDialog.LoadingAsyncTask;
-import com.example.riley.currencyconverter.LoadingDialog.LoadingDialog;
 import com.example.riley.currencyconverter.LocalStorage.SQLiteHelper;
 import com.example.riley.currencyconverter.R;
 
@@ -75,7 +74,6 @@ public class UpdateTask extends AsyncTask<Activity, String, Boolean> {
                 Toast.makeText(activity.getApplicationContext(), "Internet connection interrupted", Toast.LENGTH_LONG).show();
             }
         }
-
         loadingPopup.onPostExecute(null);
     }
 

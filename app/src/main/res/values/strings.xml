@@ -11,11 +11,11 @@
     <string name="total">Total</string>
     <string name="location_prompt">Use Location</string>
 
-    <string name="input_list_name">List Name (30 Chars)</string>
-    <string name="input_list_description">List Description</string>
+    <string name="input_list_name">List Name (30 Chars):</string>
+    <string name="input_list_description">List Description:</string>
 
-    <string name="input_item_name">Item Name (30 Chars)</string>
-    <string name="input_item_description">Item Description</string>
+    <string name="input_item_name">Item Name (30 Chars):</string>
+    <string name="input_item_description">Item Description:</string>
     <string name="input_item_cost">Cost:</string>
 
     <string name="list_table">LIST_TABLE</string>
@@ -25,6 +25,9 @@
 
     <string name="list_name">ITEM_LIST_NAME</string>
     <string name="local_currency">ITEM_LIST_LOCAL_CURRENCY</string>
+
+    <string name="item_info">ITEM_INFO</string>
+    <string name="item_rate">ITEM_RATE</string>
 
     <string name="date">%1$s, %2$s</string>
     <string name="modified_created">Last modified %1$s / Created %2$s</string>

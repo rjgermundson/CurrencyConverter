@@ -277,7 +277,7 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
 
         private void singleClick() {
                 String list = holder.name.getText().toString();
-                Intent intent = new Intent(activity.getApplicationContext(), ItemListActivity.class);
+                Intent intent = new Intent(activity, ItemListActivity.class);
                 System.err.println(list);
                 intent.putExtra(activity.getApplicationContext().getString(R.string.list_name), list);
                 intent.putExtra(activity.getApplicationContext().getString(R.string.local_currency), localCurrency);

@@ -95,18 +95,18 @@
             android:background="@color/lightGray" />
 
         <TextView
+            android:id="@+id/item_description"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
             android:id="@+id/item_date_added"
             android:text="@string/placeholder_date_created"
             android:textSize="8sp"
             android:paddingStart="2dp"
             android:paddingBottom="2dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/item_description"
-            android:visibility="gone"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
     </LinearLayout>

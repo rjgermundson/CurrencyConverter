@@ -235,11 +235,12 @@ public class ItemListActivity extends AppCompatActivity {
                 boolean useLocation = ((CheckBox) dialog.findViewById(R.id.location_check_box)).isChecked();
                 double latitude = getResources().getInteger(R.integer.INVALID_COORDINATE);
                 double longitude = getResources().getInteger(R.integer.INVALID_COORDINATE);
-                if (useLocation && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(getApplicationContext(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (useLocation && (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(getApplicationContext(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
                     // Indicated to use location and can use location
+                    System.err.println("TRYING TO GET LOCATION");
                     LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
                     Location lastLocation = null;
                     if (locationManager != null) {
@@ -252,6 +253,7 @@ public class ItemListActivity extends AppCompatActivity {
                 }
                 String type = ((Spinner) dialog.findViewById(R.id.spinner_purchase_type)).getSelectedItem().toString();
                 String[] itemColumns = getResources().getStringArray(R.array.items_columns);
+                System.err.println(latitude + " : " + longitude);
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(itemColumns[0], name);
                 contentValues.put(itemColumns[1], description);

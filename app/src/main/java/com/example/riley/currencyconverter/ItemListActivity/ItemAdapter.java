@@ -7,9 +7,8 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -30,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.riley.currencyconverter.FullItemInfo.FullItemInfoActivity;
 import com.example.riley.currencyconverter.LocalStorage.SQLiteHelper;
 import com.example.riley.currencyconverter.R;
 
@@ -77,11 +77,20 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         final ItemEntry entry = entries.get(position);
         setTextViews(holder, entry);
 
-        // Set the listener for opening up the list of items activity for the item that
+        // Set the listener for opening up the item's full info activity for the item that
         // was clicked on
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(activity, FullItemInfoActivity.class);
+                intent.putExtra(activity.getResources().getString(R.string.local_currency), localCurrencyCode);
+                intent.putExtra(activity.getResources().getString(R.string.item_rate), rate);
+                String[] info = {entry.getName(), entry.getDescription(), Double.toString(entry.getCost()),
+                                 entry.getCreated(), Double.toString(entry.getLatitude()),
+                                 Double.toString(entry.getLongitude()), entry.getType(),
+                                 entry.getKey()};
+                intent.putExtra(activity.getResources().getString(R.string.item_info), info);
+                activity.startActivity(intent);
             }
         });
         // Set up long click listener that will open up a dialog allowing for deleting or

@@ -6,6 +6,9 @@ import android.os.AsyncTask;
 
 import java.lang.ref.WeakReference;
 
+/**
+ * Constructs a LoadingDialog as an async task
+ */
 public class LoadingAsyncTask extends AsyncTask<Activity, Void, Void> {
     private WeakReference<DialogFragment> dialogFragment;
 
