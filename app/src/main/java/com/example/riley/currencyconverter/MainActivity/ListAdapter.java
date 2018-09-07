@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -87,25 +86,25 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
                     @Override
                     public void onClick(DialogInterface dialog, int choice) {
                         if (choice == 0) {  // Update
-//                            FragmentTransaction fragmentTransaction = activity.getFragmentManager().beginTransaction();
-//                            DialogFragment prev = (DialogFragment) activity.getFragmentManager().findFragmentByTag(CreateListDialogFragment.UPDATE_TAG);
-//                            if (prev != null) {
-//                                fragmentTransaction.remove(prev);
-//                            }
-//                            DialogFragment fragment = new CreateListDialogFragment();
-//
-//                            fragment.show(fragmentTransaction, CreateListDialogFragment.UPDATE_TAG);
-//                            activity.getFragmentManager().executePendingTransactions();
-//
-//                            Dialog fragmentDialog = fragment.getDialog();
-//                            ((Toolbar) fragmentDialog.findViewById(R.id.toolbar)).getMenu()
-//                                    .getItem(0).setOnMenuItemClickListener(
-//                                    new UpdateListener(fragmentDialog, entry));
-//                            ((EditText) fragmentDialog.findViewById(R.id.edit_list_name)).setText(entry.getName());
-//                            ((EditText) fragmentDialog.findViewById(R.id.edit_list_description)).setText(entry.getDescription());
-//
-//                            Button save = fragmentDialog.findViewById(R.id.create_list_button);
-//                            save.setOnClickListener(new UpdateListener(fragmentDialog, entry));
+                            FragmentTransaction fragmentTransaction = activity.getFragmentManager().beginTransaction();
+                            DialogFragment prev = (DialogFragment) activity.getFragmentManager().findFragmentByTag(CreateListDialogFragment.UPDATE_TAG);
+                            if (prev != null) {
+                                fragmentTransaction.remove(prev);
+                            }
+                            DialogFragment fragment = new CreateListDialogFragment();
+
+                            fragment.show(fragmentTransaction, CreateListDialogFragment.UPDATE_TAG);
+                            activity.getFragmentManager().executePendingTransactions();
+
+                            Dialog fragmentDialog = fragment.getDialog();
+                            ((Toolbar) fragmentDialog.findViewById(R.id.toolbar)).getMenu()
+                                    .getItem(0).setOnMenuItemClickListener(
+                                    new UpdateListener(fragmentDialog, entry));
+                            ((EditText) fragmentDialog.findViewById(R.id.edit_list_name)).setText(entry.getName());
+                            ((EditText) fragmentDialog.findViewById(R.id.edit_list_description)).setText(entry.getDescription());
+
+                            Button save = fragmentDialog.findViewById(R.id.create_list_button);
+                            save.setOnClickListener(new UpdateListener(fragmentDialog, entry));
                         } else if (choice == 1) {  // Delete
                             Iterator<ListEntry> iter = entries.iterator();
                             int index = 0;
@@ -183,6 +182,10 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
         return 0;
     }
 
+    /**
+     * Adds given entry to list, and updates view
+     * @param entry Entry to add
+     */
     public void addEntry(ListEntry entry) {
         entries.add(entry);
         notifyItemInserted(entries.size());
@@ -230,6 +233,9 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
         }
     }
 
+    /**
+     * Handles click behavior for each list entry. Defines double click and single clicks
+     */
     private class DoubleClickListener implements View.OnClickListener {
         private final long CLICK_TIMEOUT = Double.valueOf(ViewConfiguration.getDoubleTapTimeout() / 1.3).longValue();
         private Handler handler;
@@ -340,31 +346,19 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
                 String modified = Calendar.getInstance().getTime().toString();
                 String description = ((EditText) dialog.findViewById(R.id.edit_list_description)).getText().toString();
 
-                String oldCurrency = entry.getLocalCurrency();
-                String localCurrency = ((Spinner) dialog.findViewById(R.id.spinner_create_list_currencies)).getSelectedItem().toString();
-                localCurrency = CurrencyTypeConverter.fullToAbbrev(activity, localCurrency);
-                double total = entry.getTotal();
-                if (!localCurrency.equals(oldCurrency)) {
-                    // New currency
-                    // Update: Rate, Total, Item Prices, ListEntry
-                    double rate = getRate(localCurrency);  // Rate from new currency to default
-                    double crossRate = getRate(oldCurrency) * (1 / rate);
-                    total = entry.getTotal() * crossRate;
-                }
-
+                String newCurrency = ((Spinner) dialog.findViewById(R.id.spinner_create_list_currencies)).getSelectedItem().toString();
+                newCurrency = CurrencyTypeConverter.fullToAbbrev(activity, newCurrency);
                 String[] listColumns = activity.getResources().getStringArray(R.array.list_columns);
                 ContentValues values = new ContentValues();
                 values.put(listColumns[0], name);
                 values.put(listColumns[1], description);
-                values.put(listColumns[2], localCurrency);
-                values.put(listColumns[3], total);
+                values.put(listColumns[2], newCurrency);
                 values.put(listColumns[4], modified);
                 sqLiteHelper.updateRecord(0, entry.getName(), values);
 
                 entry.setName(name);
                 entry.setDescription(description);
-                entry.setLocalCurrency(localCurrency);
-                entry.setTotal(total);
+                entry.setLocalCurrency(newCurrency);
                 entry.setModified(modified);
                 notifyDataSetChanged();
                 dialog.dismiss();

@@ -35,6 +35,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      */
     public SQLiteHelper(Context context, String databaseName, String table, String[] columns, String[] types) {
         super(context, databaseName + ".db", null, DATABASE_VERSION);
+        table = table.toUpperCase();
         this.table = DatabaseUtils.sqlEscapeString(table);
         this.columns = columns;
         this.types = types;
@@ -78,7 +79,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             throw new IllegalArgumentException();
         }
         SQLiteDatabase database = getReadableDatabase();
-        System.err.println(database.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_NONE));
+        database.insert(table, null, contentValues);
     }
 
     /**
@@ -94,15 +95,15 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      *              || column >= columns.length
      */
     public void updateRecord(int identifierColumn, String identifier, int column, String value) {
-//        if (identifierColumn >= columns.length || column >= columns.length) {
-//            throw new IllegalArgumentException();
-//        }
-//        SQLiteDatabase db = getReadableDatabase();
-//        String columnName = columns[column];
-//        ContentValues content = new ContentValues();
-//        content.put(columnName, value);
-//
-//        db.update(table, content, columns[identifierColumn] + " = ?", new String[]{identifier});
+        if (identifierColumn >= columns.length || column >= columns.length) {
+            throw new IllegalArgumentException();
+        }
+        SQLiteDatabase db = getReadableDatabase();
+        String columnName = columns[column];
+        ContentValues content = new ContentValues();
+        content.put(columnName, value);
+
+        db.update(table, content, columns[identifierColumn] + " = ?", new String[]{identifier});
     }
 
     /**
@@ -114,11 +115,11 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      * @param values Values to replace found columns values
      */
     public void updateRecord(int identifierColumn, String identifier, ContentValues values) {
-//        if (identifierColumn >= columns.length || values.size() >= columns.length) {
-//            throw new IllegalArgumentException();
-//        }
-//        SQLiteDatabase db = getReadableDatabase();
-//        db.update(table, values, columns[identifierColumn] + " = ?", new String[]{identifier});
+        if (identifierColumn >= columns.length || values.size() >= columns.length) {
+            throw new IllegalArgumentException();
+        }
+        SQLiteDatabase db = getReadableDatabase();
+        db.update(table, values, columns[identifierColumn] + " = ?", new String[]{identifier});
     }
 
     /**
@@ -140,12 +141,18 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      * @return Cursor pointing to beginning of table
      */
     public Cursor getTable(String table) {
+        table = table.toUpperCase();
         table = DatabaseUtils.sqlEscapeString(table);
         SQLiteDatabase database = getReadableDatabase();
         return database.rawQuery("SELECT * FROM " + table, null);
     }
 
+    /**
+     * Drops the given table
+     * @param table Name of the table to drop
+     */
     public void dropTable(String table) {
+        table = table.toUpperCase();
         table = DatabaseUtils.sqlEscapeString(table);
         SQLiteDatabase database = getReadableDatabase();
         database.execSQL("DROP TABLE " + table);
@@ -158,6 +165,8 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      * @return True if table exists, false otherwise
      */
     public boolean tableExists(String table) {
+        table = table.toUpperCase();
+        System.err.println(table);
         table = DatabaseUtils.sqlEscapeString(table);
         SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.query("SQLITE_MASTER", null, "type=\'table\' AND name=" + table, null, null, null, null);
@@ -165,5 +174,4 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         cursor.close();
         return result;
     }
-
 }

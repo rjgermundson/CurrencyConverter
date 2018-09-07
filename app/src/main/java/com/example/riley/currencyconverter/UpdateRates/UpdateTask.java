@@ -8,6 +8,8 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.example.riley.currencyconverter.CurrencyScraper.WebScraper;
+import com.example.riley.currencyconverter.LoadingDialog.LoadingAsyncTask;
+import com.example.riley.currencyconverter.LoadingDialog.LoadingDialog;
 import com.example.riley.currencyconverter.LocalStorage.SQLiteHelper;
 import com.example.riley.currencyconverter.R;
 
@@ -20,9 +22,12 @@ import java.util.Hashtable;
 public class UpdateTask extends AsyncTask<Activity, String, Boolean> {
 
     private final WeakReference<Activity> activityWeakReference;
+    private LoadingAsyncTask loadingPopup;
 
     public UpdateTask(Activity activity) {
         activityWeakReference = new WeakReference<>(activity);
+        loadingPopup = new LoadingAsyncTask();
+        loadingPopup.doInBackground(activityWeakReference.get());
     }
 
     @Override
@@ -70,6 +75,8 @@ public class UpdateTask extends AsyncTask<Activity, String, Boolean> {
                 Toast.makeText(activity.getApplicationContext(), "Internet connection interrupted", Toast.LENGTH_LONG).show();
             }
         }
+
+        loadingPopup.onPostExecute(null);
     }
 
     private Hashtable<String, String> getAbbreviations(Activity activity) {

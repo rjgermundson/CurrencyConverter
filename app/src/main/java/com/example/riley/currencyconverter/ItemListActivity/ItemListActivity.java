@@ -206,7 +206,9 @@ public class ItemListActivity extends AppCompatActivity {
     private class CreateItemListener implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
         private Dialog dialog;
 
-        CreateItemListener(Dialog dialog) { this.dialog = dialog; }
+        CreateItemListener(Dialog dialog) {
+            this.dialog = dialog;
+        }
 
         @Override
         public void onClick(View v) {
@@ -221,7 +223,7 @@ public class ItemListActivity extends AppCompatActivity {
 
         private void saveInfo() {
             String name = ((EditText) dialog.findViewById(R.id.edit_item_name)).getText().toString();
-            if (!name.isEmpty()) {
+            if (name.length() > 0) {
                 // Have actual item with name
                 String description = ((EditText) dialog.findViewById(R.id.edit_item_description)).getText().toString();
                 String dateCreated = Calendar.getInstance().getTime().toString();
@@ -298,7 +300,7 @@ public class ItemListActivity extends AppCompatActivity {
 
     /**
      * Updates the list table for the most recently modified time
-     * @param modified
+     * @param modified Updated modified time stamp
      */
     private void updateModified(String modified) {
         String listTable = getResources().getString(R.string.list_table);
@@ -315,8 +317,11 @@ public class ItemListActivity extends AppCompatActivity {
      */
     private void updateListInfo(double total) {
         SharedPreferences preferences = getSharedPreferences(getApplication().getString(R.string.preferences_file), Context.MODE_PRIVATE);
-        String defaultCurrencyCode = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
+        String defaultCurrency = preferences.getString(getApplication().getString(R.string.preferences_default_currency), "USD");
+        if (defaultCurrency.equals("USD")) {
+            defaultCurrency = "$";
+        }
         ((TextView) findViewById(R.id.list_item_default_total)).setText(getApplication().getResources().getString(
-                R.string.total_format, String.format(Locale.US, "%.2f", total / getRate()), defaultCurrencyCode));
+                R.string.total_format, String.format(Locale.US, "%.2f", total / getRate()), defaultCurrency));
     }
 }

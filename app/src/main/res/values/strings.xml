@@ -16,7 +16,7 @@
 
     <string name="input_item_name">Item Name (30 Chars)</string>
     <string name="input_item_description">Item Description</string>
-    <string name="input_item_cost">Cost</string>
+    <string name="input_item_cost">Cost:</string>
 
     <string name="list_table">LIST_TABLE</string>
     <string name="rates_table">CURRENCY_TABLE</string>

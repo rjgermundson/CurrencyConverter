@@ -134,21 +134,6 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(intent);
         } else if (id == R.id.action_test) {
-            String[] columns = getResources().getStringArray(R.array.list_columns);
-            Cursor cursor = listHelper.getTable("LIST_TABLE");
-
-            String[] itemColumns = getResources().getStringArray(R.array.items_columns);
-            String[] itemTypes = getResources().getStringArray(R.array.items_types);
-            while (cursor.moveToNext()) {
-                String listName = cursor.getString(cursor.getColumnIndex(columns[0]));
-                System.err.println(listName);
-                SQLiteHelper helper = new SQLiteHelper(this, listName, itemColumns, itemTypes);
-                Cursor innerCursor = helper.getTable(listName);
-                System.err.println("\t" + innerCursor.getCount());
-                while (innerCursor.moveToNext()) {
-                    System.err.println("\t" + innerCursor.getString(innerCursor.getColumnIndex(itemColumns[0])));
-                }
-            }
             return true;
         } else if (id == R.id.action_update_rates) {
             update();
@@ -186,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
             ListEntry entry = new ListEntry(name, description, localCurrency, defaultCurrency, total, modified, created);
             entries.add(entry);
         }
+        cursor.close();
         return entries;
     }
 
@@ -271,15 +257,7 @@ public class MainActivity extends AppCompatActivity {
             if (name == null) {
                 return false;
             }
-            String listTable = getApplication().getString(R.string.list_table);
-            String[] listColumns = getApplication().getResources().getStringArray(R.array.list_columns);
-            Cursor cursor = listHelper.getTable(listTable);
-            while (cursor.moveToNext()) {
-                if (name.equals(cursor.getString(cursor.getColumnIndex(listColumns[0])))) {
-                    return true;
-                }
-            }
-            return false;
+            return listHelper.tableExists(name);
         }
     }
 }

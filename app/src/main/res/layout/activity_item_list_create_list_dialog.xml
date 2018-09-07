@@ -100,6 +100,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
+                    <TextView
+                        android:id="@+id/item_local_currency"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/placeholder_local_currency"/>
+
                     <EditText
                         android:id="@+id/edit_item_cost"
                         android:inputType="numberDecimal"
@@ -107,17 +114,6 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"/>
-
-                    <TextView
-                        android:id="@+id/item_local_currency"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/placeholder_local_currency"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:width="16sp"/>
 
                 </LinearLayout>
 

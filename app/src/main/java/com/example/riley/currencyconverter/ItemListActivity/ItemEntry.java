@@ -49,4 +49,28 @@ public class ItemEntry {
     public String getType() { return type; }
 
     public String getKey() { return key; }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }

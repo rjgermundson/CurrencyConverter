@@ -4,17 +4,21 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.os.AsyncTask;
 
-public class LoadingAsyncTask extends AsyncTask<Activity, Void, DialogFragment> {
+import java.lang.ref.WeakReference;
+
+public class LoadingAsyncTask extends AsyncTask<Activity, Void, Void> {
+    private WeakReference<DialogFragment> dialogFragment;
 
     @Override
-    public DialogFragment doInBackground(Activity... params) {
+    public Void doInBackground(Activity... params) {
         DialogFragment alert = new LoadingDialog();
+        this.dialogFragment = new WeakReference<>(alert);
         alert.show(params[0].getFragmentManager(), null);
-        return alert;
+        return null;
     }
 
     @Override
-    public void onPostExecute(DialogFragment result) {
-        result.dismiss();
+    public void onPostExecute(Void result) {
+        dialogFragment.get().dismiss();
     }
 }
