@@ -185,7 +185,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 typeImage.setImageResource(R.drawable.ic_local_activity_black_36dp);
                 break;
             case "Food":
-                typeImage.setImageResource(R.drawable.ic_local_hospital_black_36dp);
+                typeImage.setImageResource(R.drawable.ic_local_dining_black_36dp);
                 break;
             case "Gift":
                 typeImage.setImageResource(R.drawable.ic_card_giftcard_black_36dp);

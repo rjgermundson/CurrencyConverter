@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -69,12 +71,15 @@ public class FullItemInfoActivity extends AppCompatActivity implements OnMapRead
                 String.format(Locale.US, "%.2f", localCost / rate),
                 defaultCurrency));
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setButtonClose((ImageButton) toolbar.findViewById(R.id.toolbar_close));
+
         switch (type) {
             case "Entertainment":
                 typeImage.setImageResource(R.drawable.ic_local_activity_black_36dp);
                 break;
             case "Food":
-                typeImage.setImageResource(R.drawable.ic_local_hospital_black_36dp);
+                typeImage.setImageResource(R.drawable.ic_local_dining_black_36dp);
                 break;
             case "Gift":
                 typeImage.setImageResource(R.drawable.ic_card_giftcard_black_36dp);
@@ -104,5 +109,18 @@ public class FullItemInfoActivity extends AppCompatActivity implements OnMapRead
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(ZOOM);
         googleMap.moveCamera(locate);
         googleMap.animateCamera(zoom);
+    }
+
+    /**
+     * Sets the given button to close this dialog
+     * @param button Button to set
+     */
+    private void setButtonClose(ImageButton button) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 }
