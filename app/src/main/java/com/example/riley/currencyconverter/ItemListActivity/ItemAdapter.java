@@ -319,12 +319,18 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             String description = descriptionText.getText().toString();
             double cost = Double.parseDouble(costText.getText().toString());
             String type = typeSpinner.getSelectedItem().toString();
+
+            // Use default, or if previously used values exist, use previous values
             double latitude = activity.getResources().getInteger(R.integer.INVALID_COORDINATE);
             double longitude = activity.getResources().getInteger(R.integer.INVALID_COORDINATE);
-            if (useLocation && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(activity,
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (entry.getLatitude() != latitude && entry.getLongitude() != longitude) {
+                latitude = entry.getLatitude();
+                longitude = entry.getLongitude();
+            }
+            if (useLocation && (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(activity,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
                 // Indicated to use location and can use location
                 LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
                 Location lastLocation = null;
