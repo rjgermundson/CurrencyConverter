@@ -73,7 +73,8 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
 
         // Set the listener for opening up the list of items activity for the item that
         // was clicked on
-        holder.view.setOnClickListener(new DoubleClickListener(holder, entry.getLocalCurrency()));
+        final DoubleClickListener clickListener = new DoubleClickListener(holder, entry.getLocalCurrency());
+        holder.view.setOnClickListener(clickListener);
 
         // Set up long click listener that will open up a dialog allowing for deleting or
         // editing a record
@@ -99,12 +100,19 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
                             Dialog fragmentDialog = fragment.getDialog();
                             ((Toolbar) fragmentDialog.findViewById(R.id.toolbar)).getMenu()
                                     .getItem(0).setOnMenuItemClickListener(
-                                    new UpdateListener(fragmentDialog, entry));
+                                    new UpdateListener(holder, fragmentDialog, entry));
                             ((EditText) fragmentDialog.findViewById(R.id.edit_list_name)).setText(entry.getName());
                             ((EditText) fragmentDialog.findViewById(R.id.edit_list_description)).setText(entry.getDescription());
 
                             Button save = fragmentDialog.findViewById(R.id.create_list_button);
-                            save.setOnClickListener(new UpdateListener(fragmentDialog, entry));
+                            save.setOnClickListener(new UpdateListener(holder, fragmentDialog, entry));
+
+                            // Close the dropdown if open
+                            TextView description = holder.description;
+                            description.measure(0, 0);
+                            if (description.getHeight() != 0) {
+                                clickListener.doubleClick();
+                            }
                         } else if (choice == 1) {  // Delete
                             Iterator<ListEntry> iter = entries.iterator();
                             int index = 0;
@@ -287,7 +295,6 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
         private void doubleClick() {
             TextView description = holder.description;
             description.measure(0, 0);
-            System.err.println("DOUBLEDOUBLE");
             int startHeight = description.getHeight();
             int endHeight;
             if (startHeight == 0) {
@@ -297,8 +304,6 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
                 // We want to collapse
                 endHeight = 0;
             }
-            System.err.println("START: " + startHeight);
-            System.err.println("END: " + endHeight);
             description.startAnimation(new RevealAnimation(description, startHeight, endHeight, ANIMATION_DURATION));
             // Change image slightly after/during for aesthetic reasons
             if (startHeight == 0) {
@@ -314,10 +319,12 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
      * This class defines the behavior of updating a list item
      */
     private class UpdateListener implements Button.OnClickListener, MenuItem.OnMenuItemClickListener{
+        private ListViewHolder holder;
         private Dialog dialog;
         private ListEntry entry;
 
-        private UpdateListener(Dialog dialog, ListEntry entry) {
+        private UpdateListener(ListViewHolder holder, Dialog dialog, ListEntry entry) {
+            this.holder = holder;
             this.dialog = dialog;
             this.entry = entry;
         }
@@ -356,11 +363,16 @@ class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
                 values.put(listColumns[4], modified);
                 sqLiteHelper.updateRecord(0, entry.getName(), values);
 
+
                 entry.setName(name);
                 entry.setDescription(description);
                 entry.setLocalCurrency(newCurrency);
                 entry.setModified(modified);
                 notifyDataSetChanged();
+                if (entry.getDescription().length() != 0) {
+                    // Want to show expand button
+                    holder.view.findViewById(R.id.list_description_expand).setVisibility(View.VISIBLE);
+                }
                 dialog.dismiss();
             }
         }
